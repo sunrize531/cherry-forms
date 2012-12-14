@@ -1,6 +1,6 @@
 define(['underscore', 'backbone', 'core',
     'widgets/text', 'widgets/select',
-    'less!/cherryforms/css/chf-list.less'], function (_, Backbone, CherryForms) {
+    'less!chf-list.less'], function (_, Backbone, CherryForms) {
     "use strict";
     var Widgets = CherryForms.Widgets,
         Widget = Widgets.Widget,

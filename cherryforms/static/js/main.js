@@ -10,6 +10,10 @@ requirejs.config({
         'less': 'libs/require-less',
         'text': 'libs/require-text'
     },
+    config: {
+        'less_path': '/cherryforms/css/',
+        'css_path':  '/cherryforms/css/'
+    },
     baseUrl: '/cherryforms/js/',
     shim: {
         'bootstrap': ['jquery'],

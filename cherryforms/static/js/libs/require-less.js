@@ -2,11 +2,12 @@ define({
     version: '0.1',
     load: function(name, req, onLoad, config) {
         "use strict";
-        req(['text!' + name, 'lessjs', 'jquery'], function (lessContent, less, $) {
+        var less_path = config.config['less_path'];
+        req(['text!' + less_path + name, 'lessjs', 'jquery'], function (lessContent, less, $) {
             var style,
                 parser = new less.Parser({
                     filename: name,
-                    paths: [name.split('/').slice(0,-1).join('/') + '/']
+                    paths: [less_path]
                 });
 
             parser.parse(lessContent, function (err, css) {

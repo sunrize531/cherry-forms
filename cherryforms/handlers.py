@@ -17,7 +17,10 @@ class CherryStaticHandler(StaticFileHandler):
         self.path.append(norm_path(module_path, 'static'))
 
     def get(self, path, include_body=True):
-        path = file_path(path, self.path)
+        try:
+            path = file_path(path, self.path)
+        except OSError:
+            raise HTTPError(404)
 
         stat_result = os.stat(path)
         modified = datetime.datetime.fromtimestamp(stat_result[stat.ST_MTIME])
