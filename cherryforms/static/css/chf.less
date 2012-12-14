@@ -1,0 +1,87 @@
+@import 'chf-shared';
+.container-fluid {
+}
+
+.chf-home {
+  display: block;
+  position: absolute;
+  top: 1em; right: 1em;
+}
+
+.panel-wide {
+  width: @panel-wide-width + 10;
+  margin: 1em;
+  .inputs(@panel-wide-width - 2em);
+}
+
+.panel-thin {
+  width: @panel-thin-width;
+  margin: 0.7em;
+  .inputs(@panel-thin-width - 1.4em);
+}
+
+
+/* Fields */
+.chf-note {
+  margin: 1em 2em;
+  font-size: .8em;
+  color: @grey;
+}
+
+.chf-field {
+  margin: 0 0 1em;
+  clear: both;
+
+  .chf-field-buttons {
+    font-size: 0.8em;
+  }
+}
+
+.chf-field-preview {
+}
+
+input.chf-field-error, textarea.chf-field-error {
+  border: 1px solid @error;
+}
+
+.chf-field-help {
+  font-size: .7em;
+  color: @grey;
+}
+
+/* Core fields */
+.chf-field-checkbox {
+  label, .ui-icon {
+    display: inline-block;
+  }
+
+  .ui-icon {
+    margin-right: 0.5em;
+  }
+}
+
+.chf-field-tags {
+  .chf-field-list {
+    font-size: .9em;
+    padding: .25em;
+  }
+
+  .chf-field-tag {
+    color: @grey;
+  }
+
+  .chf-field-tag-checked {
+    font-weight: bold;
+    color: @dark;
+  }
+}
+
+
+/* jQuery UI tweaks */
+.ui-button-text {
+  font-size: 0.75em;
+}
+
+.ui-tabs-nav {
+  font-size: 0.75em;
+}

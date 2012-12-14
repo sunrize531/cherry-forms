@@ -1,0 +1,27 @@
+@import "chf-shared";
+.tsadmin-field-tree {
+
+  .tsadmin-field-roots, .tsadmin-field-tree-children {
+    margin: 0;
+    padding: 0 0 0 .5em;
+    list-style-type: none;
+  }
+
+  .tsadmin-field-tree-node {
+    position: relative;
+    padding-left: 16px;
+
+    .tsadmin-icon-collapse, .tsadmin-icon-expand {
+      display: block;
+      position: absolute;
+      top: 0; left: 0;
+    }
+  }
+
+  .tsadmin-field-selected {
+    font-weight: bold;
+    color: @green;
+  }
+}
+
+
