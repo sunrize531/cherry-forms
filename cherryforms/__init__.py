@@ -55,6 +55,8 @@ class CherryFormsURLSpec(URLSpec):
     def __init__(self, pattern, handler_class, kwargs=None, prefix=_DEFAULT):
         if prefix is _DEFAULT:
             prefix = _DEFAULT_SETTINGS['prefix']
+        if not prefix.startswith('^'):
+            prefix = '^' + prefix
         pattern = '{}{}'.format(prefix, pattern)
         name = 'chf-{:05x}'.format(crc32(str(pattern)) & 0xfffff)
         super(CherryFormsURLSpec, self).__init__(pattern, handler_class, kwargs, name)

@@ -1,5 +1,5 @@
 define(['underscore', 'backbone', 'core',
-    'widgets/text', 'widgets/select', 'widgets/checkbox', 'widgets/list', 'widgets/stash'],
+    'widgets/text', 'widgets/select', 'widgets/checkbox', 'widgets/list'],
     function (_, Backbone, CherryForms) {
     "use strict";
     var Widgets = CherryForms.Widgets,

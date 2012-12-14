@@ -7,7 +7,7 @@ import time
 
 from json import loads
 from tornado.web import StaticFileHandler, RequestHandler, HTTPError, email
-from cherryforms import module_path, norm_path, CherryFormsSettings, CherryTemplateLoader
+from cherryforms import module_path, norm_path, CherryFormsSettings, CherryTemplateLoader, file_path
 
 class CherryStaticHandler(StaticFileHandler):
     def initialize(self, path=(), default_filename=None):
@@ -16,18 +16,8 @@ class CherryStaticHandler(StaticFileHandler):
         self.path = map(norm_path, path)
         self.path.append(norm_path(module_path, 'static'))
 
-    def find_file(self, file_path):
-        for p in self.path:
-            norm_file_path = norm_path(p, file_path)
-            if os.path.isfile(norm_file_path):
-                if norm_file_path.startswith(p):
-                    return file_path
-                else:
-                    raise HTTPError(403)
-        raise HTTPError(404)
-
     def get(self, path, include_body=True):
-        path = self.find_file(path)
+        path = file_path(path, self.path)
 
         stat_result = os.stat(path)
         modified = datetime.datetime.fromtimestamp(stat_result[stat.ST_MTIME])

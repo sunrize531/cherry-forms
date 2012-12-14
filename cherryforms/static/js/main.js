@@ -1,6 +1,6 @@
 requirejs.config({
     paths: {
-        'jquery': 'libs/jquery-1.7.2.min',
+        'jquery': 'libs/jquery-1.8.3.min',
         'lessjs': 'libs/less-1.3.1.min',
         'bootstrap': 'libs/bootstrap.min',
         'underscore': 'libs/underscore-min',
@@ -10,7 +10,7 @@ requirejs.config({
         'less': 'libs/require-less',
         'text': 'libs/require-text'
     },
-    baseUrl: '/static/admin/js/cherry-forms',
+    baseUrl: '/cherryforms/js/',
     shim: {
         'bootstrap': ['jquery'],
         'underscore': {

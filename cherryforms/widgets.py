@@ -54,9 +54,9 @@ class CherryFormsModule(UIModule):
         specs = []
         prefix = self.settings['prefix']
         if self.settings['static_handlers']:
-            if self.settings['extended_static']:
+            if self.settings['static_path']:
                 pass
-            spec = CherryFormsURLSpec('static/(.*)', CherryStaticHandler, prefix=prefix)
+            spec = CherryFormsURLSpec('(.*)', CherryStaticHandler, prefix=prefix)
             if not self._is_registered(host, spec):
                 specs.append(spec)
 
@@ -77,6 +77,8 @@ class CherryFormsModule(UIModule):
 
                 if not self._is_registered(host, spec):
                     specs.append(spec)
+
+        self._add_handlers(specs)
 
     url_pattern = '{prefix}{url}'
     def prepare_url(self, url, prefix=None, **kwargs):

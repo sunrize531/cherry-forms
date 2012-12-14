@@ -12,7 +12,10 @@ class TestHandler(CherryFormsHandler):
 if __name__ == '__main__':
     app = Application((('^/test', TestHandler),),
         template_path=norm_path(os.curdir, 'templates'),
-        ui_modules=widgets
+        ui_modules=widgets,
+        cherryforms = {
+            'static_handlers': True
+        }
     )
     app.listen(8000)
     IOLoop.instance().start()
