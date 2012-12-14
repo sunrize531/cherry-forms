@@ -1,13 +1,30 @@
+import os, inspect
 from collections import MutableMapping
 from copy import deepcopy
 from zlib import crc32
+from tornado.template import Loader, BaseLoader, Template
 from tornado.web import URLSpec
+
+module_path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
+def norm_path(*args):
+    return os.path.abspath(os.path.normpath(os.path.join(*args)))
+
+def file_path(file_name, path):
+    for p in path:
+        file_path = norm_path(p, file_name)
+        if os.path.isfile(file_path):
+            if file_path.startswith(p):
+                return file_path
+    raise OSError('File not found: {}'.format(file_name))
 
 _DEFAULT = object()
 _DEFAULT_SETTINGS = {
     'static_handlers': False,
     'widget_handlers': True,
-    'prefix': '^cherryforms/',
+    'prefix': '/cherryforms/',
+    'static_path': [],
+    'template_path': [],
     '_handlers': {},
     '_updated': True
 }
@@ -15,7 +32,7 @@ _DEFAULT_SETTINGS = {
 class CherryFormsSettings(MutableMapping):
     def __init__(self, application):
         self.settings = application.settings.setdefault('cherryforms', {})
-        if self.settings.get('_updated'):
+        if not self.settings.get('_updated'):
             for key, value in deepcopy(_DEFAULT_SETTINGS).iteritems():
                 self.settings.setdefault(key, value)
 
@@ -25,9 +42,14 @@ class CherryFormsSettings(MutableMapping):
     def __setitem__(self, key, value):
         self.settings[key] = value
 
-    def check_handler(self, host, spec):
-        registered_handlers = self.settings['_handlers']
+    def __delitem__(self, key):
+        del self.settings[key]
 
+    def __iter__(self):
+        return self.settings.__iter__()
+
+    def __len__(self):
+        return len(self.settings)
 
 class CherryFormsURLSpec(URLSpec):
     def __init__(self, pattern, handler_class, kwargs=None, prefix=_DEFAULT):
@@ -43,3 +65,15 @@ class CherryFormsURLSpec(URLSpec):
         else:
             return self.name == other.name
 
+class CherryTemplateLoader(BaseLoader):
+    def __init__(self, path, **kwargs):
+        super(CherryTemplateLoader, self).__init__(**kwargs)
+        self.path = map(norm_path, path)
+        self.path.append(norm_path(module_path, 'templates'))
+
+    def resolve_path(self, name, parent_path=None):
+        return file_path(name, self.path)
+
+    def _create_template(self, name):
+        with open(name, 'rb') as f:
+            return Template(f.read(), name=name, loader=self)

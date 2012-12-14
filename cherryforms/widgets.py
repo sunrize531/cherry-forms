@@ -22,7 +22,7 @@ class CherryFormsModule(UIModule):
         self.settings = CherryFormsSettings(self.handler.application)
 
         #Register static and required handlers if any.
-        self.register_handlers(handler)
+        self.register_handlers()
 
     @staticmethod
     def _add_handler(handlers_list, spec):
@@ -54,6 +54,8 @@ class CherryFormsModule(UIModule):
         specs = []
         prefix = self.settings['prefix']
         if self.settings['static_handlers']:
+            if self.settings['extended_static']:
+                pass
             spec = CherryFormsURLSpec('static/(.*)', CherryStaticHandler, prefix=prefix)
             if not self._is_registered(host, spec):
                 specs.append(spec)
@@ -76,70 +78,30 @@ class CherryFormsModule(UIModule):
                 if not self._is_registered(host, spec):
                     specs.append(spec)
 
+    url_pattern = '{prefix}{url}'
+    def prepare_url(self, url, prefix=None, **kwargs):
+        if re.match('https?://', url) or url.startswith('/'):
+            prefix = ''
+        else:
+            prefix = prefix or self.settings['prefix']
+        return self.url_pattern.format(prefix=prefix, url=url, **kwargs)
 
-
-
-
-
-    @classmethod
-    def register_handlers(cls, handler):
-        """This function will add cherryforms handlers in current application. If application uses virtual hosts,
-        and no wildcard host handlers configured yet, method will add cherryforms handlers for all hosts.
-        """
-        application = handler.application
-        settings = application.settings.setdefault('cherryforms', {})
-        url_prefix = settings.setdefault('url_prefix', 'cherryforms/')
-        specs = []
-        if not settings.get('disable_static_handlers', True) and not settings.get('static_handlers_registered'):
-            settings['static_handlers_registered'] = True
-            specs.append(('{}static/(.+)'.format(url_prefix), CherryStaticHandler))
-
-        if cls.handlers and not settings.get('disable_field_handlers', False):
-            registered_field_handlers = settings.setdefault('registered_field_handlers', {})
-            field_class = cls.__name__
-            if not registered_field_handlers.get(field_class):
-                specs += list(cls.handlers)
-
-        if specs:
-            cls._add_handlers(application, specs)
 
 class Link(CherryFormsModule):
     template = ''
-    prefix = None
-    url_pattern = '{prefix}{file_name}'
-
-    def get_file_url(self, file_name, prefix=None):
-        prefix = prefix or self.get_settings_value('url_prefix', 'cherryforms/')
-
-
-class Link(UIModule):
-    template = ''
-    prefix_pattern = ''
-    file_name_pattern = '{}{}'
-
-    @classmethod
-    def get_file_name(cls, file_name, prefix=None):
-        if re.match('https?://', file_name):
-            prefix = ''
-        elif prefix:
-            prefix = cls.prefix_pattern.format(prefix)
-        return cls.file_name_pattern.format(prefix, file_name)
-
-    def render(self, file_name, prefix=None, **kwargs):
-        template = _templates_loader.load(self.template)
-        return template.generate(file_name=self.get_file_name(file_name, prefix), **kwargs)
+    def render(self, url, prefix=None, **kwargs):
+        return self.render_string(self.template, url=self.prepare_url(url, prefix, **kwargs), **kwargs)
 
 class CSSLink(Link):
     template = 'css_link.html'
-    prefix_pattern = '{}css/'
+    url_pattern = '{prefix}css/{url}'
 
-class LessLink(Link):
+class LessLink(CSSLink):
     template = 'less_link.html'
-    prefix_pattern = '{}css/'
 
 class JSLink(Link):
     template = 'js_link.html'
-    prefix_pattern = '{}js/'
+    url_pattern = '{prefix}js/{url}'
 
     def render(self, file_name, prefix=None, defer=False, async=False):
         return super(JSLink, self).render(file_name, prefix, defer=defer, async=async)
@@ -150,8 +112,8 @@ class Button(UIModule):
         return self.render_string(self.template, id=id, label=label or id, bootstrap_type=bootstrap_type, **kwargs)
 
 
-class Field(UIModule):
-    template = 'widgets/field.html'
+class Field(CherryFormsModule):
+    template = 'field.html'
     widget = 'Field'
     field_class = ''
     _javascript_files = ()
@@ -159,23 +121,20 @@ class Field(UIModule):
     _embedded_javascript = ''
     _css_files = ()
     _less_files = ()
-    _handlers = ()
+    handlers = ()
+
     _fields = {}
-
-    def __init__(self, handler):
-        super(Field, self).__init__(handler)
-        self.register_handlers(handler)
-
     def javascript_files(self):
-        return [JSLink.get_file_name(file_name) for file_name in self._javascript_files]
+        return [self.prepare_url(url) for url in self._javascript_files]
 
     def embedded_javascript(self):
         class_name = self.__class__.__name__
-        return self.handler.render_string('widgets/embedded_js.html',
+        return self.render_string('embedded_js.html',
             modules=['core'] + list(self._required_modules),
             class_name=class_name,
             fields=self._fields.pop(class_name, {}),
             less=self._less_files,
+            css=self._css_files,
             embedded=self._embedded_javascript
         )
 
@@ -189,21 +148,6 @@ class Field(UIModule):
         cls._fields_counter = (cls._fields_counter + 1) % 0xFF
         cls._fields_lock.release()
         return '{:05x}'.format(crc32(field_id_src) & 0xfffff)
-
-    _handlers_registered = False
-    @classmethod
-    def register_handlers(cls, handler):
-        if not cls._handlers_registered:
-            handlers = handler.application.handlers
-            try:
-                handlers_list = handlers[-1][1]
-            except IndexError:
-                pass
-            else:
-                for pattern, handler_class in cls._handlers:
-                    handlers_list.append(URLSpec(pattern, handler_class))
-                cls._handlers_registered = True
-
 
     def render(self, field='', label='', value='', **kwargs):
         field_id = self.get_field_id(field)

@@ -1,13 +1,14 @@
 requirejs.config({
     paths: {
-        'jquery': '/static/js/jquery-1.7.2.min',
-        'lessjs': '/static/js/less-1.3.1.min',
-        'bootstrap': '/static/admin/js/bootstrap.min',
-        'underscore': '/static/admin/js/underscore',
-        'backbone': '/static/admin/js/backbone',
-        'handsontable': '/static/admin/js/jquery.handsontable',
-        'less': 'require-less',
-        'text': 'require-text'
+        'jquery': 'libs/jquery-1.7.2.min',
+        'lessjs': 'libs/less-1.3.1.min',
+        'bootstrap': 'libs/bootstrap.min',
+        'underscore': 'libs/underscore-min',
+        'backbone': 'libs/backbone-min',
+        'handsontable': 'libs/jquery.handsontable',
+        'css': 'libs/require-css',
+        'less': 'libs/require-less',
+        'text': 'libs/require-text'
     },
     baseUrl: '/static/admin/js/cherry-forms',
     shim: {
@@ -27,8 +28,4 @@ requirejs.config({
             exports: 'Handsontable'
         }
     }
-});
-
-require(['underscore', 'backbone', 'core'], function (_, Backbone, CherryForms) {
-
 });

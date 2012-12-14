@@ -1,0 +1,30 @@
+{% extends base.html %}
+{% block editor_css %}{% end %}
+{% block js %}
+{% block editor_js %}{% end %}
+{% end %}
+
+{% block body %}
+<div class="container">
+<h1>{% block header %}{% end %}</h1>
+<div class="chf-content">
+{% block content %}{% end %}
+<div class="chf-form" id="admin-document">
+{% block prefix %}{% end %}
+<form name="document-form" method="post" action="{% block action %}{% end %}">
+{% block form %}
+{% for key, value in document.iteritems() %}
+{% module TextField(key, label=key, value=value) %}
+{% end %}
+{% end %}
+<div class="chf-form-buttons">{% block buttons %}
+{% module Button('update', 'Update', bootstrap_type='primary') %}
+{% module Button('delete', 'Delete', bootstrap_type='danger') %}
+{% end %}</div>
+</form>
+{% block suffix %}{% end %}
+</div>
+</div>
+</div>
+{% end %}
+
