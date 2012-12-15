@@ -23,10 +23,6 @@ define(['underscore', 'backbone', 'core',
                 '<a class="btn {{ add_button }}" href="#"><i class="icon-plus"></i></a>' +
             '</div>'),
 
-        listItemTemplate = _.template(
-            '<span>{{ title }}</span>' +
-            '{% if (!read_only) { %}&nbsp;<i class="icon-trash"></i>{% } %}'),
-
         listWidgetTemplate = _.template(
             '<div class="control-group">' +
                 '<div class="control-label">{{ label }}</div>' +
@@ -90,6 +86,7 @@ define(['underscore', 'backbone', 'core',
                 field_class: 'chf-field-list',
                 items_class: 'chf-field-items',
                 new_item_class: 'chf-field-new-item',
+                trash_icon: 'chf-icon-trash',
                 new_item_field: 'chf-field-new-field',
                 add_button: 'chf-btn-add',
                 read_only: false,
@@ -165,6 +162,11 @@ define(['underscore', 'backbone', 'core',
     });
 
     ListItemView = Backbone.View.extend({
+        template: _.template(
+            '<span>{{ title }}</span>' +
+            '{% if (!read_only) { %}&nbsp;<a href="#" class="red {{ trash_icon }}">' +
+                '<i class="icon-trash"></i></a>{% } %}'),
+
         events: function () {
             var events = {},
                 url_template = this.options['url_template'],
@@ -173,13 +175,15 @@ define(['underscore', 'backbone', 'core',
                 events['click'] = '_openURL';
             }
             if (!read_only) {
-                events['click .icon-trash'] = '_removeItem';
+                events['click .' + this.options['trash_icon']] = '_removeItem';
             }
+
+            console.debug('ListItemView.events', events);
             return events;
         },
 
         render: function () {
-            this.$el.html(listItemTemplate(_.extend({}, this.options, this.model.toJSON())));
+            this.$el.html(this.template(_.extend({}, this.options, this.model.toJSON())));
             return this;
         },
 
@@ -188,12 +192,14 @@ define(['underscore', 'backbone', 'core',
                 this.options['url_template'],
                 _.extend({}, this.options, this.model.toJSON())
             ));
+            return false;
         },
 
         _removeItem: function (event) {
-            event.preventDefault();
+            console.debug('ListItemView._removeItem', this.model);
             this.model.collection.remove(this.model);
             this.$el.detach();
+            return false;
         }
     });
 
@@ -232,8 +238,7 @@ define(['underscore', 'backbone', 'core',
         },
 
         renderItem: function (item) {
-            var itemView = new ListItemView(_.extend(
-                    {
+            var itemView = new ListItemView(_.extend({
                         model: item,
                         className: this.model.get('item_class'),
                         idAttribute: item.id

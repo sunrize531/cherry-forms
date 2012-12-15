@@ -1,4 +1,4 @@
-{% extends chf_tabbed_document.html %}
+{% extends tabbed_document.html %}
 {% block tabs %}
 <li><a href="#basic">Fields</a></li>
 <li><a href="#select">Selectors</a></li>
@@ -6,6 +6,7 @@
 <li><a href="#document">Embedded document</a></li>
 <li><a href="#tree">Tree</a></li>
 <li><a href="#charts">Charts</a></li>
+<li><a href="#grid">Document grid</a></li>
 {% end %}
 {% block form %}
 <div class="tab-content">
@@ -48,6 +49,14 @@
         {'widget': 'Number', 'field': 'int_field'},
         {'widget': 'List', 'field': 'list_field', 'choices': [1, 2, 3, 'quick brown bullocks', 'bumble bee']}
     ]) %}
+</div>
+<div id="grid">
+{% module DocumentGridField('doc_grid', label='Documents grid:', value=[
+        {'_id': 1, 'text_field': 'Some string here', 'int_field': 5, 'list_field': [2, 3]},
+        {'_id': 2, 'text_field': 'Another string', 'int_field': 3, 'list_field': [1, 1]},
+        {'_id': 3, 'text_field': 'Fuck!', 'int_field': 100500, 'list_field': ['quick brown bullocks', 'bumble bee']},
+    ],
+    fields=['text_field', 'int_field']) %}
 </div>
 <div id="tree">
 {% module TreeField('tree', label='Tree field:', value=['node_002', 'leaf_002'],

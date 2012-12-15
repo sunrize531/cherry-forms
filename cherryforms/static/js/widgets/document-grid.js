@@ -1,5 +1,5 @@
 define(['underscore', 'backbone', 'handsontable', 'core',
-    'less!/static/admin/css/chf-document-grid.less'], function (_, Backbone, Handsontable, CherryForms) {
+    'less!chf-document-grid.less', 'css!jquery.handsontable.css'], function (_, Backbone, Handsontable, CherryForms) {
     "use strict";
 
     var Widgets = CherryForms.Widgets,

@@ -1,4 +1,5 @@
 @import "chf-shared";
+@import "bootstrap-variables";
 
 .chf-field-list {
   .chf-field-items {
@@ -9,11 +10,16 @@
       display: inline-block;
       margin-right: 1em;
 
-      .chf-icon-trash {
+      a.chf-icon-trash {
         .chf-inline-icon(0, 1em);
+        vertical-align: middle;
+        color: @red;
+        font-size: @baseFontSize;
+        &:hover {
+          font-size: @fontSizeLarge;
+        }
       }
     }
-
   }
 
   .chf-field-new-field {
