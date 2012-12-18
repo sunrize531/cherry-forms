@@ -1,7 +1,8 @@
 from tornado.ioloop import IOLoop
 from tornado.web import Application, os
-from cherryforms import norm_path, widgets
+from cherryforms import widgets
 from cherryforms.handlers import CherryFormsHandler
+from cherrycommon.pathutils import norm_path
 
 __author__ = 'sunrize'
 

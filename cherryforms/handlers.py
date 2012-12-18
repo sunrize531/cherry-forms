@@ -7,7 +7,8 @@ import time
 
 from json import loads
 from tornado.web import StaticFileHandler, RequestHandler, HTTPError, email
-from cherryforms import module_path, norm_path, CherryFormsSettings, CherryTemplateLoader, file_path
+from cherryforms import module_path, CherryFormsSettings, CherryTemplateLoader
+from cherrycommon.pathutils import norm_path, file_path
 
 class CherryStaticHandler(StaticFileHandler):
     def initialize(self, path=(), default_filename=None):

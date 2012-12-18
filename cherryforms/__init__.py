@@ -5,18 +5,10 @@ from zlib import crc32
 from tornado.template import Loader, BaseLoader, Template
 from tornado.web import URLSpec
 
+from cherrycommon.pathutils import norm_path, file_path
+
+
 module_path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-
-def norm_path(*args):
-    return os.path.abspath(os.path.normpath(os.path.join(*args)))
-
-def file_path(file_name, path):
-    for p in path:
-        file_path = norm_path(p, file_name)
-        if os.path.isfile(file_path):
-            if file_path.startswith(p):
-                return file_path
-    raise OSError('File not found: {}'.format(file_name))
 
 _DEFAULT = object()
 _DEFAULT_SETTINGS = {

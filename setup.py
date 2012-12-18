@@ -11,6 +11,7 @@ setup(
     description='Set of UIModules for building forms with Tornado web server. Widgets also can be used as standalone on clientside.',
     install_requires=[
         "tornado >= 2.4",
-        "pymongo >= 2.3"
+        "pymongo >= 2.3",
+        "cherrycommon"
     ],
 )
