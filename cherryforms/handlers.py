@@ -122,3 +122,6 @@ class CherryFormsHandler(RequestHandler):
         if target:
             redirect['target'] = target
         self.write(redirect)
+
+
+
