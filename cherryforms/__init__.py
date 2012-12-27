@@ -2,7 +2,7 @@ import os, inspect
 from collections import MutableMapping
 from copy import deepcopy
 from zlib import crc32
-from tornado.template import Loader, BaseLoader, Template
+from tornado.template import BaseLoader, Template
 from tornado.web import URLSpec
 
 from cherrycommon.pathutils import norm_path, file_path

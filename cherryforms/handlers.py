@@ -73,13 +73,6 @@ class CherryFormsHandler(RequestHandler):
             return argument
 
     def create_template_loader(self, template_path):
-        """Returns a new template loader for the given path.
-
-        May be overridden by subclasses.  By default returns a
-        directory-based loader on the given path, using the
-        ``autoescape`` application setting.  If a ``template_loader``
-        application setting is supplied, uses that instead.
-        """
         settings = self.application.settings
         if "template_loader" in settings:
             return settings["template_loader"]
