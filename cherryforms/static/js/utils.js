@@ -3,10 +3,10 @@ define(['underscore'], function (_) {
     var Utils = {},
         Unset = Utils.Unset = function () {
             this.type = 'UnsetValue';
-            this.cid = _.uniqueId('unset_value_');
+            this.cid = _.uniqueId('__unset_');
 
             this.toString = function () {
-                return '__unset_' + this.cid;
+                return this.cid;
             };
         },
 

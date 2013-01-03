@@ -4,6 +4,7 @@
 <li><a href="#select">Selectors</a></li>
 <li><a href="#list">Lists</a></li>
 <li><a href="#document">Embedded document</a></li>
+<li><a href="#tree">Tree</a></li>
 {% end %}
 {% block form %}
 <div class="tab-content">
@@ -18,7 +19,7 @@
 <div id="select">
 {% module SelectField('simple_select', label='Simple select:', value=2,
     choices=[1, 2, [3, 'three'], {'value': 4, 'title': 'four'}]) %}
-{% module SelectField('not_null_select', label='Required select:', value=None, not_null=True,
+{% module SelectField('not_null_select', label='Required select:', value=1, not_null=True,
     choices=[1, 2, [3, 'three'], {'value': 4, 'title': 'four'}]) %}
 </div>
 <div id="list">
@@ -45,6 +46,21 @@
         {'widget': 'Text', 'field': 'text_field'},
         {'widget': 'Number', 'field': 'int_field'},
         {'widget': 'List', 'field': 'list_field', 'choices': [1, 2, 3, 'quick brown bullocks', 'bumble bee']}
+    ]) %}
+</div>
+<div id="tree">
+{% module TreeField('tree', label='Tree field:', value='node_001',
+    tree=[
+        {'title': 'Root 01', 'value': 'root_01', 'children': [
+            {'title': 'Node 000', 'value': 'node_000'},
+            {'title': 'Node 001', 'value': 'node_001', 'children': [
+                {'title': 'Leaf 000', 'value': 'leaf_000'},
+                {'title': 'Leaf 001', 'value': 'leaf_001'},
+                {'title': 'Leaf 002', 'value': 'leaf_002'},
+            ]},
+            {'title': 'Node 002', 'value': 'node_002'},
+        ]},
+        {'title': 'Root 02', 'value': 'root_02'}
     ]) %}
 </div>
 </div>

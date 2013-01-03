@@ -1,246 +1,347 @@
-(function() {
-    var TSAdmin = window.CherryForms,
-        Widgets = CherryForms.Widgets,
-        Widget = Widgets.Widget,
+define(['underscore', 'backbone', 'core', 'utils',
+    'less!chf-tree.less'], function(_, Backbone, CherryForms, Utils) {
+    "use strict";
+
+    var Widgets = CherryForms.Widgets,
         Models = CherryForms.Models,
+        Fields = CherryForms.Fields,
+        Field = Fields.Field,
+        Widget = Widgets.Widget,
         Templates = CherryForms.Templates,
-        Events = CherryForms.Events;
+        Patterns = CherryForms.Patterns,
+        Events = CherryForms.Events,
+        Unset = Utils.Unset,
+        isSimple = Utils.isSimple,
 
-    var TreeNode = Models.TreeNode = Backbone.Model.extend({
-        defaults: {
-            'selected': false
-        },
+        Node = Backbone.Model.extend({
+            defaults: {
+                'selected': false,
+                'expanded': false
+            },
 
-        initialize: function(data) {
-            this.tree.nodes.add(this);
-            this.children = new this.tree.NodesCollection(data['children']);
-            this.children.each(function(node) {
-                node.parent = this;
-            }, this);
-        },
+            initialize: function(data) {
+                this.tree.nodes.add(this);
+                this.children = new this.tree.NodesCollection(data['children']);
+                this.children.each(function(node) {
+                    node.parent = this;
+                }, this);
+            },
 
-        select: function() {
-            this.set('selected', !this.get('selected'));
-        },
+            toggle: function() {
+                this.set('selected', !this.get('selected'));
+            },
 
-        toJSON: function() {
-            return _.extend(Backbone.Model.prototype.toJSON.call(this), {
-                'num_children': this.children.length
-            });
-        },
+            toJSON: function() {
+                return _.extend(Backbone.Model.prototype.toJSON.call(this), {
+                    'num_children': this.children.length
+                });
+            },
 
-        isChild: function(node) {
-            var isChild = false;
-            this.children.each(function(child) {
-                if (child.id == node.id) {
-                    isChild = true;
-                    return false;
+            isEqual: function (node) {
+                return node.id === this.id;
+            },
+
+            isChild: function(node) {
+                return !_.isUndefined(this.children.find(function (child) {
+                    return child.id === node.id;
+                }));
+            },
+
+            _cursor: {
+                queue: [],
+                currentPath: []
+            },
+
+            _pathIterator: function (node) {
+                var cursor = this._cursor;
+                cursor.queue.push(cursor.currentPath.concat([node]));
+            },
+
+            getPath: function () {
+                var path = [this],
+                    parent = this.parent;
+                while (!_.isUndefined(parent)) {
+                    path.unshift(parent);
+                    parent = parent.parent;
                 }
-            });
-            return isChild;
-        },
+                return path;
+            },
 
-        isAncestor: function(node) {
-            var isAncestor = false;
-            this.children.each(function(child) {
-                if (child.id == node.id || child.isAncestor(node)) {
-                    isAncestor = true;
-                    return false;
+            getAncestorPath: function (node) {
+                if (this.isEqual(node)) {
+                    return [this];
                 }
-            });
-            return isAncestor;
-        },
-
-        isDescendant: function(node) {
-            if (!_.isUndefined(this.parent)) {
-                return this.parent.id == node.id || this.parent.isDescendant(node);
-            } else {
-                return false;
-            }
-        }
-    });
-
-    var TreeNodesCollection = Models.TreeNodesCollection = Backbone.Collection.extend({
-        model: TreeNode
-    });
-
-    var Tree = Models.Tree = Backbone.Model.extend({
-        NodeModelPrototype: TreeNode,
-        NodesCollectionPrototype: TreeNodesCollection,
-
-        initialize: function(attributes) {
-            var tree = attributes['tree'];
-
-            this.NodeModel = this.NodeModelPrototype.extend({tree: this});
-            this.NodesCollection = this.NodesCollectionPrototype.extend({model: this.NodeModel, tree: this});
-            this.nodes = new this.NodesCollection();
-            this.roots = new this.NodesCollection(tree);
-        },
-
-        getSelected: function() {
-            return this.nodes.filter(function(node) {
-                return node.get('selected');
-            });
-        }
-    });
-
-    var treeNodeDefaults = {
-        'node_class': 'tsadmin-field-tree-node',
-        'title_class': 'tsadmin-field-tree-node-title',
-        'children_class': 'tsadmin-field-tree-children',
-        'expand_icon': 'tsadmin-icon-expand',
-        'collapse_icon': 'tsadmin-icon-collapse',
-        'selected_class': 'tsadmin-field-selected'
-    };
-
-    Templates.TreeNode = _.template(
-        '{% if (num_children) { %}' +
-            '<ins class="ui-icon ui-icon-triangle-1-e {{ expand_icon }}"></ins>' +
-            '<ins class="ui-icon ui-icon-triangle-1-se {{ collapse_icon }}"></ins>' +
-        '{% } %}' +
-        '<a href="#" class="{{ title_class }}{% if (selected) { %} {{ selected_class }}{% } %}">{{ title }}</a>' +
-        '<ul class="{{ children_class }}"></ul>');
-    var TreeNodeView = Backbone.View.extend({
-        tagName: 'li',
-        className: treeNodeDefaults['node_class'],
-        defaults: treeNodeDefaults,
-        events: function() {
-            var events = {};
-            events['click .' + this.options['expand_icon']] = 'expand';
-            events['click .' + this.options['collapse_icon']] = 'collapse';
-            events['click .' + this.options['title_class']] = 'selectNode';
-            return events;
-        },
-
-        render: function() {
-            $(this.el).html(Templates.TreeNode(_.extend(this.model.toJSON(), this.options)));
-            if (this.model.get('selected')) {
-                this.expand();
-            } else {
-                this.collapse();
-            }
-            return this;
-        },
-
-        getChildren: function() {
-            if (_.isUndefined(this.$children)) {
-                this.$children = this.$('.' + this.options['children_class']);
-            }
-            return this.$children;
-        },
-
-        getExpandIcon: function() {
-            if (_.isUndefined(this.$expandIcon)) {
-                this.$expandIcon = this.$el.children('.' + this.options['expand_icon']);
-            }
-            return this.$expandIcon;
-        },
-
-        getCollapseIcon: function() {
-            if (_.isUndefined(this.$collapseIcon)) {
-                this.$collapseIcon = this.$el.children('.' + this.options['collapse_icon']);
-            }
-            return this.$collapseIcon;
-        },
-
-        getTitle: function() {
-            if (_.isUndefined(this.$title)) {
-                this.$title = this.$el.children('.' + this.options['title_class']);
-            }
-            return this.$title;
-        },
-
-        expand: function() {
-            var $children = this.getChildren();
-            this.model.children.each(function(node) {
-                var nodeView = new TreeNodeView(_.defaults({model: node}, this.options));
-                $children.append(nodeView.render().el);
-            }, this);
-            this.getExpandIcon().hide();
-            this.getCollapseIcon().show();
-            return false;
-        },
-
-        expandTo: function(node) {
-            this.expand();
-            this.children.each(function(child) {
-                if (child.isAncestor(node)) {
-                    child.expandTo(node);
+                var parent = this.parent,
+                    path = [this];
+                while (!_.isUndefined(parent)) {
+                    path.unshift(parent);
+                    if (parent.isEqual(node)) {
+                        return path;
+                    }
                 }
-            });
-            return false;
-        },
+                return undefined;
+            },
 
-        collapse: function() {
-            this.getChildren().empty();
-            this.getExpandIcon().show();
-            this.getCollapseIcon().hide();
-            return false;
-        },
+            isAncestor: function(node) {
+                return !_.isUndefined(this.getAncestorPath(node));
+            },
 
-        selectNode: function() {
-            this.getTitle().toggleClass(this.options['selected_class']);
-            this.model.select();
-            return false;
-        }
-    });
+            getDescendantPath: function (node) {
+                if (this.isEqual(node)) {
+                    return [this];
+                }
 
-    Templates.Tree = _.template(
-        '{{ label }}<ul class="{{ roots_class }}"></ul>'
-    );
+                var cursor = this._cursor,
+                    queue = cursor.queue,
+                    currentPath = cursor.currentPath = [this],
+                    currentNode;
 
-    Widgets.Tree = Widget.extend({
-        TreeModel: Tree,
-        template: 'Tree',
+                this.children.each(this._pathIterator, this);
+                while (queue) {
+                    currentPath = queue.shift();
+                    currentNode = currentPath[-1];
+                    if (currentNode.isEqual(node)) {
+                        queue.length = 0;
+                        return currentPath;
+                    }
+                    cursor.currentPath = currentPath;
+                    currentNode.children.each(this._pathIterator, this);
+                }
+                queue.length = 0;
+                return undefined;
+            },
 
-        defaults: _.extend(_.clone(treeNodeDefaults), {
-            'roots_class': 'tsadmin-field-roots',
-            'value': []
+            isDescendant: function(node) {
+                return !_.isUndefined(this.getDescendantPath(node));
+            }
         }),
 
-        initialize: function() {
-            Widget.prototype.initialize.call(this);
-            this.tree = new this.TreeModel({tree: this.options['tree']});
-            var nodes = this.tree.nodes,
-                value = this.options['value'];
-            nodes.on('change', this.onSelectNode, this);
-            _.each(this.options['value'], function(nodeId) {
-                var node = nodes.get(nodeId);
-                if (!_.isUndefined(node)) {
-                    nodes.get(nodeId).select();
+        NodesCollection = Models.TreeNodesCollection = Backbone.Collection.extend({
+            model: Node
+        }),
+
+        Tree = Models.Tree = Backbone.Model.extend({
+            NodeModelPrototype: Node,
+            NodesCollectionPrototype: NodesCollection,
+
+            initialize: function(attributes) {
+                this.NodeModel = this.NodeModelPrototype.extend({tree: this});
+                this.NodesCollection = this.NodesCollectionPrototype.extend({model: this.NodeModel, tree: this});
+                this.nodes = new this.NodesCollection();
+                this.roots = new this.NodesCollection(attributes['tree']);
+            },
+
+            getSelected: function() {
+                return this.nodes.filter(function (node) {
+                    return node.get('selected');
+                });
+            },
+
+            getNode: function (value) {
+                if (value instanceof Node) {
+                    value = value.get('value');
+                } else if (_.isObject(value)) {
+                    value = value['value'];
                 }
-            });
-        },
-
-        onSelectNode: function(node) {
-            var value = this.options['value'];
-            if (!_.isArray(value)) {
-                this.options['value'] = value = [];
+                return this.nodes.find(function (node) {
+                    return node.get('value') === value;
+                });
             }
-            value.push(node.id);
-            this.trigger(Events.FIELD_CHANGE, this);
+        }),
+
+        nodeDefaults = {
+            'node_class': 'chf-tree-node',
+            'title_class': 'chf-tree-node-title',
+            'children_class': 'chf-tree-children',
+            'expand_icon': 'chf-icon-expand',
+            'collapse_icon': 'chf-icon-collapse',
+            'selected_class': 'chf-selected'
         },
 
-        getSelectedNodes: function() {
-            var nodes = this.tree.nodes;
-            return _.map(this.getValue(), function(nodeId) {
-                return nodes.get(nodeId);
-            }, this);
-        },
+        NodeView = Backbone.View.extend({
+            tagName: 'li',
+            className: nodeDefaults['node_class'],
+            template: _.template('{% if (num_children) { %}' +
+                    '<i class="icon-folder-close {{ expand_icon }}"></i>' +
+                    '<i class="icon-folder-open {{ collapse_icon }}"></i>' +
+                '{% } %}' +
+                '<a href="#" class="{{ title_class }}{% if (selected) { %} {{ selected_class }}{% } %}">' +
+                    '{{ title }}</a>' +
+                '<ul class="{{ children_class }}"></ul>'),
 
-        render: function() {
-            Widget.prototype.render.call(this);
-            var nodeDefaults = _.pick(this.options, _.keys(treeNodeDefaults)),
-                $tree = this.$('.' + this.options['roots_class']);
-            this.tree.roots.each(function(node) {
-                var nodeView = new TreeNodeView(_.extend({model: node}, nodeDefaults));
-                $tree.append(nodeView.render().el);
-            }, this);
-            return this;
-        },
+            events: function() {
+                var events = {};
+                events['click > .' + this.options['expand_icon']] = 'expand';
+                events['click > .' + this.options['collapse_icon']] = 'collapse';
+                events['click > .' + this.options['title_class']] = '_toggleSelection';
+                return events;
+            },
 
-        dumpValue: function() {
-            return JSON.stringify(this.getValue());
-        }
-    });
-})();
+            initialize: function (options) {
+                _.defaults(this.options, nodeDefaults);
+                this.listenTo(this.model, 'change:selected', this._onSelectedStateChange);
+                this.listenTo(this.model, 'change:expanded', this._onExpandedStateChange);
+            },
+
+            render: function() {
+                $(this.el).html(this.template(_.extend(this.model.toJSON(), this.options)));
+                this._onSelectedStateChange();
+                this._onExpandedStateChange();
+                return this;
+            },
+
+            getChildren: function() {
+                if (_.isUndefined(this.$children)) {
+                    this.$children = this.$('.' + this.options['children_class']);
+                }
+                return this.$children;
+            },
+
+            getExpandIcon: function() {
+                if (_.isUndefined(this.$expandIcon)) {
+                    this.$expandIcon = this.$el.children('.' + this.options['expand_icon']);
+                }
+                return this.$expandIcon;
+            },
+
+            getCollapseIcon: function() {
+                if (_.isUndefined(this.$collapseIcon)) {
+                    this.$collapseIcon = this.$el.children('.' + this.options['collapse_icon']);
+                }
+                return this.$collapseIcon;
+            },
+
+            getTitle: function() {
+                if (_.isUndefined(this.$title)) {
+                    this.$title = this.$el.children('.' + this.options['title_class']);
+                }
+                return this.$title;
+            },
+
+            expand: function() {
+                this.model.set('expanded', true);
+                return false;
+            },
+
+            collapse: function() {
+                this.model.set('expanded', false);
+                return false;
+            },
+
+            expandTo: function(node) {
+                var path = this.model.getDescendantPath(node);
+                if (!_.isUndefined(path)) {
+                    _.each(path, function (node) {
+                        node.set('expanded', true);
+                    });
+                }
+                return false;
+            },
+
+            _toggleSelection: function() {
+                this.model.toggle();
+                return false;
+            },
+
+            _onSelectedStateChange: function () {
+                if (this.model.get('selected')) {
+                    this.getTitle().addClass(this.options['selected_class']);
+                } else {
+                    this.getTitle().removeClass(this.options['selected_class']);
+                }
+            },
+
+            _onExpandedStateChange: function () {
+                if (this.model.get('expanded')) {
+                    var $children = this.getChildren();
+                    this.model.children.each(function(node) {
+                        var nodeView = new NodeView(_.defaults({model: node}, this.options));
+                        $children.append(nodeView.render().el);
+                    }, this);
+                    this.getExpandIcon().hide();
+                    this.getCollapseIcon().show();
+                } else {
+                    this.getChildren().empty();
+                    this.getExpandIcon().show();
+                    this.getCollapseIcon().hide();
+                }
+            }
+        }),
+
+        TreeField = Fields.Tree = Field.extend({
+            defaults: function () {
+                return _.extend({}, Field.prototype.defaults.call(this), {
+                    'field_class': 'chf-field-tree',
+                    'tree_class': 'chf-tree'
+                }, nodeDefaults);
+            },
+
+            initialize: function (attributes) {
+                this.tree = new Tree({tree: this.get('tree')});
+                this.tree.nodes.on('change:selected', this._onNodeSelect, this);
+                Field.prototype.initialize.apply(this, arguments);
+            },
+
+            processValue: function () {
+                var value = this.get('value'),
+                    node;
+                if (!_.isArray(value)) {
+                    value = [value];
+                }
+                this.value = new NodesCollection();
+                _.each(value, function (nodeValue) {
+                    node = this.tree.getNode(nodeValue);
+                    if (_.isUndefined(node)) {
+                        console.error('Node not found in tree', nodeValue);
+                    } else {
+                        node.set('selected', true);
+                        this.value.add(node);
+                    }
+                }, this);
+            },
+
+            plainValue: function () {
+                return this.value.pluck('value');
+            },
+
+            dumpValue: function () {
+                return JSON.stringify(this.plainValue());
+            },
+
+            _onNodeSelect: function (node) {
+                if (node.get('selected')) {
+                    this.value.add(node);
+                } else {
+                    this.value.remove(node);
+                }
+                this.trigger(Events.FIELD_CHANGE, this);
+            }
+        }),
+
+        TreeWidget = Widgets.Tree = Widget.extend({
+            template: _.template('<div class="control-group">' +
+                '<label>{{ label }}</label>' +
+                '<ul class="{{ tree_class }}">' +
+                '</ul>' +
+            '</div>'),
+            FieldModel: TreeField,
+
+            getTree: function () {
+                if (_.isUndefined(this._tree)) {
+                    this._tree = this.$('.' + this.model.get('tree_class'));
+                }
+                return this._tree;
+            },
+
+            render: function () {
+                Widget.prototype.render.call(this);
+                this.getTree().append(
+                    this.model.tree.roots.map(function (node) {
+                        return (new NodeView({model: node})).render().el;
+                    })
+                );
+            }
+        });
+
+    return CherryForms;
+});

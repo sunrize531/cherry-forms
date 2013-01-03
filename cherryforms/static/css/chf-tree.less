@@ -1,26 +1,28 @@
 @import "chf-shared";
-.tsadmin-field-tree {
+@import "bootstrap-variables";
 
-  .tsadmin-field-roots, .tsadmin-field-tree-children {
+.chf-field-tree {
+
+  .chf-tree, .chf-tree-children {
     margin: 0;
     padding: 0 0 0 .5em;
     list-style-type: none;
   }
 
-  .tsadmin-field-tree-node {
+  .chf-tree-node {
     position: relative;
-    padding-left: 16px;
+    padding-left: 1.5em;
 
-    .tsadmin-icon-collapse, .tsadmin-icon-expand {
+    .chf-icon-collapse, .chf-icon-expand {
       display: block;
       position: absolute;
-      top: 0; left: 0;
+      top: 2px; left: 0;
     }
   }
 
-  .tsadmin-field-selected {
+  .chf-selected {
     font-weight: bold;
-    color: @green;
+    color: @blueDark;
   }
 }
 

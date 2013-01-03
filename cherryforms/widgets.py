@@ -227,5 +227,4 @@ class DocumentGridField(Field):
 class TreeField(Field):
     widget = 'Tree'
     field_class = 'chf-field-tree'
-    _javascript_files = 'widgets/tree.js',
-    _css_files = 'chf-tree.css',
+    _required_modules = 'widgets/tree',

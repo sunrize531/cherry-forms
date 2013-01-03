@@ -99,21 +99,23 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
 
         SelectField = Fields.Select = Field.extend({
             initialize: function () {
-                var choices = this.get('choices');
-                if (!(choices instanceof Choices)) {
-                    this.choices = new Choices(choices);
-                } else {
-                    this.choices = choices;
-                }
+                var choices = this.choices = this._getChoices(this.get('choices'));
                 if (!this.get('not_null')) {
-                    this.choices.unshift([new Unset(), '-']);
+                    choices.unshift([new Unset(), '-']);
                 } else if (_.isNull(this.get('value')) || _.isUndefined(this.get('value'))) {
-                    this.set('value', this.choices.def().get('value'));
+                    this.set('value', choices.def().get('value'));
                 }
                 this.choices
                     .on('remove', this._onRemoveOption, this)
                     .on('change:selected', this._onSelectOption, this);
                 Field.prototype.initialize.apply(this, arguments);
+            },
+
+            _getChoices: function (choices) {
+                if (!(choices instanceof Choices)) {
+                    return new Choices(choices);
+                }
+                return choices;
             },
 
             _onRemoveOption: function (option) {
@@ -132,13 +134,16 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
                 }
             },
 
+/*
+            TODO: fix for Backbone 0.9.9
             validate: function (attributes, options) {
                 var value = attributes['value'],
-                    option = this.choices.get(value),
-                    error = false;
+                    error = false,
+                    choices = this.choices || this._getChoices(attributes['choices']);
+                console.debug('Select.validate', attributes);
                 if (_.isUndefined(value) && attributes['not_null']) {
                     error = 'Value cannot be undefined';
-                } else if (!_.isUndefined(value) && _.isUndefined(option)) {
+                } else if (!_.isUndefined(value) && _.isUndefined(choices.get(value))) {
                     error = 'There is no option for value ' + value;
                 }
                 if (error) {
@@ -146,6 +151,7 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
                 }
                 return error;
             },
+*/
 
             processValue: function () {
                 this.value = this.choices.select(this.get('value'));
