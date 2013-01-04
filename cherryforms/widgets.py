@@ -228,3 +228,13 @@ class TreeField(Field):
     widget = 'Tree'
     field_class = 'chf-field-tree'
     _required_modules = 'widgets/tree',
+
+class LineChart(Field):
+    widget = 'LineChart'
+    field_class = 'chf-field-chart'
+    _required_modules = 'widgets/charts',
+
+class PieChart(Field):
+    widget = 'PieChart'
+    field_class = 'chf-field-chart'
+    _required_modules = 'widgets/charts',

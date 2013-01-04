@@ -214,7 +214,6 @@ define(['underscore', 'backbone', 'core', 'utils',
                     ' .' + this.options['select_icon']] = '_selectSubtree';
                 events['click > .' + this.options['controls_class'] +
                     ' .' + this.options['deselect_icon']] = '_deselectSubtree';
-                console.debug(events);
                 return events;
             },
 

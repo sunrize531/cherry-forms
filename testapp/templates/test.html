@@ -5,6 +5,7 @@
 <li><a href="#list">Lists</a></li>
 <li><a href="#document">Embedded document</a></li>
 <li><a href="#tree">Tree</a></li>
+<li><a href="#charts">Charts</a></li>
 {% end %}
 {% block form %}
 <div class="tab-content">
@@ -62,6 +63,26 @@
         ]},
         {'title': 'Root 02', 'value': 'root_02'}
     ]) %}
+</div>
+<div id="charts">
+{% module LineChart('line_chart', label='Line chart:', data=[
+        ['X', 'Line 1', 'Line 2'],
+        [1,   10,       15],
+        [2,   15,       17],
+        [3,   16,       18],
+        [4,   17,       10],
+        [5,   25,       9],
+        [6,   4,        9],
+    ]) %}
+{% module PieChart('line_chart', label='Pie chart:', data=[
+        ['Task', 'Hours per Day'],
+        ['Work',     11],
+        ['Eat',      2],
+        ['Commute',  2],
+        ['Watch TV', 2],
+        ['Sleep',    7]
+    ]) %}
+
 </div>
 </div>
 {% end %}

@@ -5,10 +5,15 @@ requirejs.config({
         'bootstrap': 'libs/bootstrap.min',
         'underscore': 'libs/underscore-min',
         'backbone': 'libs/backbone-min',
+        //'google': 'https://www.google.com/jsapi/',
         'handsontable': 'libs/jquery.handsontable',
+
         'css': 'libs/require-css',
         'less': 'libs/require-less',
-        'text': 'libs/require-text'
+        'text': 'libs/require-text',
+        'async': 'libs/require-async',
+        'goog': 'libs/require-goog',
+        'propertyParser': 'libs/require-property-parser'
     },
     config: {
         'less_path': '/cherryforms/css/',
@@ -30,6 +35,9 @@ requirejs.config({
         'handsontable': {
             deps: ['jquery'],
             exports: 'Handsontable'
+        },
+        'google': {
+            exports: 'google'
         }
     }
 });
