@@ -27,14 +27,20 @@ define(['underscore', 'backbone', 'core', 'utils',
                 }, this);
             },
 
-            toggle: function() {
-                this.set('selected', !this.get('selected'));
+            numChildren: function () {
+                return this.children.length;
             },
 
             toJSON: function() {
                 return _.extend(Backbone.Model.prototype.toJSON.call(this), {
-                    'num_children': this.children.length
+                    'num_children': this.numChildren()
                 });
+            },
+
+            toggle: function() {
+                var selected = !this.get('selected');
+                this.set('selected', selected);
+                return selected;
             },
 
             isEqual: function (node) {
@@ -45,16 +51,6 @@ define(['underscore', 'backbone', 'core', 'utils',
                 return !_.isUndefined(this.children.find(function (child) {
                     return child.id === node.id;
                 }));
-            },
-
-            _cursor: {
-                queue: [],
-                currentPath: []
-            },
-
-            _pathIterator: function (node) {
-                var cursor = this._cursor;
-                cursor.queue.push(cursor.currentPath.concat([node]));
             },
 
             getPath: function () {
@@ -86,6 +82,16 @@ define(['underscore', 'backbone', 'core', 'utils',
                 return !_.isUndefined(this.getAncestorPath(node));
             },
 
+            _cursor: {
+                queue: [],
+                currentPath: []
+            },
+
+            _pathIterator: function (node) {
+                var cursor = this._cursor;
+                cursor.queue.push(cursor.currentPath.concat([node]));
+            },
+
             getDescendantPath: function (node) {
                 if (this.isEqual(node)) {
                     return [this];
@@ -113,6 +119,24 @@ define(['underscore', 'backbone', 'core', 'utils',
 
             isDescendant: function(node) {
                 return !_.isUndefined(this.getDescendantPath(node));
+            },
+
+            _childrenIterator: function (node) {
+                this._cursor.queue.push(node);
+            },
+
+            getSubtree: function () {
+                var descendants = [this],
+                    cursor = this._cursor,
+                    queue = cursor.queue,
+                    currentNode;
+                this.children.each(this._childrenIterator, this);
+                while (queue.length) {
+                    currentNode = queue.shift();
+                    descendants.push(currentNode);
+                    currentNode.children.each(this._childrenIterator, this);
+                }
+                return descendants;
             }
         }),
 
@@ -153,27 +177,44 @@ define(['underscore', 'backbone', 'core', 'utils',
             'node_class': 'chf-tree-node',
             'title_class': 'chf-tree-node-title',
             'children_class': 'chf-tree-children',
-            'expand_icon': 'chf-icon-expand',
-            'collapse_icon': 'chf-icon-collapse',
-            'selected_class': 'chf-selected'
+            'controls_class': 'chf-controls',
+            'node_icon': 'chf-icon',
+            'selected_class': 'chf-selected',
+            'collapsed_icon': 'icon-angle-right',
+            'expanded_icon': 'icon-angle-down',
+            'collapse_icon': 'icon-angle-up',
+            'select_icon': 'chf-icon-select',
+            'deselect_icon': 'chf-icon-deselect'
         },
 
         NodeView = Backbone.View.extend({
             tagName: 'li',
             className: nodeDefaults['node_class'],
-            template: _.template('{% if (num_children) { %}' +
-                    '<i class="icon-folder-close {{ expand_icon }}"></i>' +
-                    '<i class="icon-folder-open {{ collapse_icon }}"></i>' +
-                '{% } %}' +
+            nodeTemplate: _.template('<i class="{{ node_icon }}"></i>' +
                 '<a href="#" class="{{ title_class }}{% if (selected) { %} {{ selected_class }}{% } %}">' +
                     '{{ title }}</a>' +
+                '&nbsp;<span class="{{ controls_class }}">' +
+                    '<i class="icon-ok-sign {{ select_icon }}" title="Select subtree"></i>' +
+                    '<i class="icon-remove-sign {{ deselect_icon }}" title="Deselect subtree"></i>' +
+                '</span>' +
                 '<ul class="{{ children_class }}"></ul>'),
+            leafTemplate: _.template('<i class="{{ node_icon }}"></i>' +
+                '<a href="#" class="{{ title_class }}{% if (selected) { %} {{ selected_class }}{% } %}">' +
+                    '{{ title }}</a>'),
 
-            events: function() {
+            events: function () {
                 var events = {};
-                events['click > .' + this.options['expand_icon']] = 'expand';
-                events['click > .' + this.options['collapse_icon']] = 'collapse';
+                events['mouseenter'] = '_showControls';
+                events['mouseleave'] = '_hideControls';
+                events['click > .' + this.options['node_icon']] = '_toggleChildren';
+                events['mouseover > .' + this.options['node_icon']] = '_onIconOver';
+                events['mouseout > .' + this.options['node_icon']] = '_onIconOut';
                 events['click > .' + this.options['title_class']] = '_toggleSelection';
+                events['click > .' + this.options['controls_class'] +
+                    ' .' + this.options['select_icon']] = '_selectSubtree';
+                events['click > .' + this.options['controls_class'] +
+                    ' .' + this.options['deselect_icon']] = '_deselectSubtree';
+                console.debug(events);
                 return events;
             },
 
@@ -183,52 +224,59 @@ define(['underscore', 'backbone', 'core', 'utils',
                 this.listenTo(this.model, 'change:expanded', this._onExpandedStateChange);
             },
 
-            render: function() {
-                $(this.el).html(this.template(_.extend(this.model.toJSON(), this.options)));
+            render: function () {
+                var template;
+                if (this.model.numChildren()) {
+                    template = this.nodeTemplate;
+                } else {
+                    template = this.leafTemplate;
+                }
+                $(this.el).html(template(_.extend(this.model.toJSON(), this.options)));
                 this._onSelectedStateChange();
                 this._onExpandedStateChange();
+                this.getControls().hide();
                 return this;
             },
 
-            getChildren: function() {
+            getChildren: function () {
                 if (_.isUndefined(this.$children)) {
                     this.$children = this.$('.' + this.options['children_class']);
                 }
                 return this.$children;
             },
 
-            getExpandIcon: function() {
-                if (_.isUndefined(this.$expandIcon)) {
-                    this.$expandIcon = this.$el.children('.' + this.options['expand_icon']);
+            getIcon: function () {
+                if (_.isUndefined(this.$icon)) {
+                    this.$icon = this.$el.children('.' + this.options['node_icon']);
                 }
-                return this.$expandIcon;
+                return this.$icon;
             },
 
-            getCollapseIcon: function() {
-                if (_.isUndefined(this.$collapseIcon)) {
-                    this.$collapseIcon = this.$el.children('.' + this.options['collapse_icon']);
-                }
-                return this.$collapseIcon;
-            },
-
-            getTitle: function() {
+            getTitle: function () {
                 if (_.isUndefined(this.$title)) {
                     this.$title = this.$el.children('.' + this.options['title_class']);
                 }
                 return this.$title;
             },
 
-            expand: function() {
+            getControls: function () {
+                if (_.isUndefined(this.$controls)) {
+                    this.$controls = this.$el.children('.' + this.options['controls_class']);
+                }
+                return this.$controls;
+            },
+
+            expand: function () {
                 this.model.set('expanded', true);
                 return false;
             },
 
-            collapse: function() {
+            collapse: function () {
                 this.model.set('expanded', false);
                 return false;
             },
 
-            expandTo: function(node) {
+            expandTo: function (node) {
                 var path = this.model.getDescendantPath(node);
                 if (!_.isUndefined(path)) {
                     _.each(path, function (node) {
@@ -236,6 +284,39 @@ define(['underscore', 'backbone', 'core', 'utils',
                     });
                 }
                 return false;
+            },
+
+            _toggleChildren: function () {
+                this.model.set('expanded', !this.model.get('expanded'));
+                return false;
+            },
+
+            _onIconOver: function () {
+                var options = this.options;
+                if (this.model.get('expanded')) {
+                    this.getIcon()
+                        .addClass(options['collapse_icon'])
+                        .removeClass(options['collapsed_icon'] + ' ' + options['expanded_icon']);
+                } else {
+                    this.getIcon()
+                        .addClass(options['expanded_icon'])
+                        .removeClass(options['collapse_icon'] + ' ' + options['collapsed_icon']);
+                }
+            },
+
+            _onIconOut: function () {
+                var options = this.options;
+                if (this.model.get('expanded')) {
+                    this.getIcon()
+                        .addClass(options['expanded_icon'])
+                        .removeClass(options['collapsed_icon'] + ' ' + options['collapse_icon'])
+                        .prop('title', 'Hide children');
+                } else {
+                    this.getIcon()
+                        .addClass(options['collapsed_icon'])
+                        .removeClass(options['expanded_icon'] + ' ' + options['collapse_icon'])
+                        .prop('title', 'Show children');
+                }
             },
 
             _toggleSelection: function() {
@@ -262,13 +343,32 @@ define(['underscore', 'backbone', 'core', 'utils',
                         var nodeView = new NodeView(_.defaults({model: node}, this.options));
                         $children.append(nodeView.render().el);
                     }, this);
-                    this.getExpandIcon().hide();
-                    this.getCollapseIcon().show();
+
                 } else {
                     this.getChildren().empty();
-                    this.getExpandIcon().show();
-                    this.getCollapseIcon().hide();
                 }
+                this._onIconOut();
+            },
+
+            _showControls: function () {
+                this.getControls().show();
+            },
+
+            _hideControls: function () {
+                this.getControls().hide();
+            },
+
+            _selectSubtree: function () {
+                console.debug('NodeView._selectSubtree', this);
+                _.each(this.model.getSubtree(), function (node) {
+                    node.set('selected', true);
+                });
+            },
+
+            _deselectSubtree: function () {
+                _.each(this.model.getSubtree(), function (node) {
+                    node.set('selected', false);
+                });
             }
         }),
 
