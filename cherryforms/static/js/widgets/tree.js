@@ -239,7 +239,11 @@ define(['underscore', 'backbone', 'core', 'utils',
             },
 
             _toggleSelection: function() {
-                this.model.toggle();
+                if (this.model.toggle()) {
+                    _.each(this.model.getPath(), function (node) {
+                        node.set('expanded', true);
+                    });
+                }
                 return false;
             },
 
@@ -295,6 +299,9 @@ define(['underscore', 'backbone', 'core', 'utils',
                         console.error('Node not found in tree', nodeValue);
                     } else {
                         node.set('selected', true);
+                        _.each(node.getPath(), function (node) {
+                            node.set('expanded', true);
+                        });
                         this.value.add(node);
                     }
                 }, this);
