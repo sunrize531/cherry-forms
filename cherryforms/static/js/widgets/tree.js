@@ -183,6 +183,7 @@ define(['underscore', 'backbone', 'core', 'utils',
             'collapsed_icon': 'icon-angle-right',
             'expanded_icon': 'icon-angle-down',
             'collapse_icon': 'icon-angle-up',
+            'leaf_icon': 'icon-caret-right',
             'select_icon': 'chf-icon-select',
             'deselect_icon': 'chf-icon-deselect'
         },
@@ -206,14 +207,16 @@ define(['underscore', 'backbone', 'core', 'utils',
                 var events = {};
                 events['mouseenter'] = '_showControls';
                 events['mouseleave'] = '_hideControls';
-                events['click > .' + this.options['node_icon']] = '_toggleChildren';
-                events['mouseover > .' + this.options['node_icon']] = '_onIconOver';
-                events['mouseout > .' + this.options['node_icon']] = '_onIconOut';
                 events['click > .' + this.options['title_class']] = '_toggleSelection';
-                events['click > .' + this.options['controls_class'] +
-                    ' .' + this.options['select_icon']] = '_selectSubtree';
-                events['click > .' + this.options['controls_class'] +
-                    ' .' + this.options['deselect_icon']] = '_deselectSubtree';
+                if (this.model.numChildren()) {
+                    events['click > .' + this.options['node_icon']] = '_toggleChildren';
+                    events['mouseover > .' + this.options['node_icon']] = '_onIconOver';
+                    events['mouseout > .' + this.options['node_icon']] = '_onIconOut';
+                    events['click > .' + this.options['controls_class'] +
+                        ' .' + this.options['select_icon']] = '_selectSubtree';
+                    events['click > .' + this.options['controls_class'] +
+                        ' .' + this.options['deselect_icon']] = '_deselectSubtree';
+                }
                 return events;
             },
 
@@ -305,16 +308,20 @@ define(['underscore', 'backbone', 'core', 'utils',
 
             _onIconOut: function () {
                 var options = this.options;
-                if (this.model.get('expanded')) {
-                    this.getIcon()
-                        .addClass(options['expanded_icon'])
-                        .removeClass(options['collapsed_icon'] + ' ' + options['collapse_icon'])
-                        .prop('title', 'Hide children');
+                if (this.model.numChildren()) {
+                    if (this.model.get('expanded')) {
+                        this.getIcon()
+                            .addClass(options['expanded_icon'])
+                            .removeClass(options['collapsed_icon'] + ' ' + options['collapse_icon'])
+                            .prop('title', 'Hide children');
+                    } else {
+                        this.getIcon()
+                            .addClass(options['collapsed_icon'])
+                            .removeClass(options['expanded_icon'] + ' ' + options['collapse_icon'])
+                            .prop('title', 'Show children');
+                    }
                 } else {
-                    this.getIcon()
-                        .addClass(options['collapsed_icon'])
-                        .removeClass(options['expanded_icon'] + ' ' + options['collapse_icon'])
-                        .prop('title', 'Show children');
+                    this.getIcon().addClass(options['leaf_icon']);
                 }
             },
 
@@ -358,7 +365,6 @@ define(['underscore', 'backbone', 'core', 'utils',
             },
 
             _selectSubtree: function () {
-                console.debug('NodeView._selectSubtree', this);
                 _.each(this.model.getSubtree(), function (node) {
                     node.set('selected', true);
                 });
