@@ -266,6 +266,12 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                 var widget = attributes['widget'],
                     FieldClass = Fields[widget];
                 return new FieldClass(attributes, options);
+            },
+
+            getField: function (fieldName) {
+                return this.find(function (field) {
+                    return field.get('field') === fieldName;
+                });
             }
         }),
 
@@ -392,6 +398,10 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                     .on('error', this._onError, this);
                 this.valid = true;
                 this.dump = {};
+            },
+
+            getField: function (fieldName) {
+                return this.fields.getField(fieldName);
             },
 
             _onChange: function (field) {

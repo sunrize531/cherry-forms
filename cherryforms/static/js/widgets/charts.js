@@ -9,7 +9,9 @@ define(['underscore', 'core',
         Events = CherryForms.Events,
         vis = google.visualization,
 
-        LineChartField = Fields.LineChart = Field.extend({
+        DATA_UPDATE_EVENT = 'chart:data_update',
+
+        ChartField = Field.extend({
             defaults: function () {
                 return _.extend({}, Field.prototype.defaults.call(this), {
                     chart_class: 'chf-chart'
@@ -18,68 +20,73 @@ define(['underscore', 'core',
 
             initialize: function () {
                 Field.prototype.initialize.apply(this, arguments);
+                this._onDataSet();
+                this.on('change:data', this._onDataSet, this);
+            },
+
+            _onDataSet: function () {
                 this.data = vis.arrayToDataTable(this.get('data'));
+                this.trigger(DATA_UPDATE_EVENT);
             }
         }),
 
-        LineChartWidget = Widgets.LineChart = Widget.extend({
+        ChartWidget = Widget.extend({
             template: _.template('<div class="control-group">' +
                 '<label>{{ label }}</label>' +
                 '<div class="{{ chart_class }}"></div>' +
             '</div> '),
-            FieldModel: LineChartField,
+            FieldModel: ChartField,
+
+            $getChart: function () {
+                if (_.isUndefined(this.$chart)) {
+                    this.$chart = this.$('.' + this.model.get('chart_class'))[0];
+                }
+                return this.$chart;
+            },
+
+            initChart: function () {
+                throw 'Implement it in subclass';
+            },
 
             getChart: function () {
                 if (_.isUndefined(this._chart)) {
-                    this._chart = this.$('.' + this.model.get('chart_class'))[0];
+                    this._chart = this.initChart();
                 }
                 return this._chart;
             },
 
             render: function () {
                 Widget.prototype.render.apply(this, arguments);
-                this.chart = new vis.LineChart(this.getChart());
-                this.chart.draw(this.model.data);
+                this.refreshChart();
+                this.listenTo(this.model, DATA_UPDATE_EVENT, this.refreshChart);
                 return this;
-            }
-        }),
-
-        // TODO: make prototype for both charts.
-        PieChartField = Fields.PieChart = Field.extend({
-            defaults: function () {
-                return _.extend({}, Field.prototype.defaults.call(this), {
-                    chart_class: 'chf-chart'
-                });
             },
 
-            initialize: function () {
-                Field.prototype.initialize.apply(this, arguments);
-                this.data = vis.arrayToDataTable(this.get('data'));
+            refreshChart: function () {
+                this.getChart().draw(this.model.data);
             }
         }),
 
-        PieChartWidget = Widgets.PieChart = Widget.extend({
-            template: _.template('<div class="control-group">' +
-                '<label>{{ label }}</label>' +
-                '<div class="{{ chart_class }}"></div>' +
-            '</div> '),
+        LineChartField = Fields.LineChart = ChartField.extend({
+        }),
+
+        LineChartWidget = Widgets.LineChart = ChartWidget.extend({
             FieldModel: LineChartField,
 
-            getChart: function () {
-                if (_.isUndefined(this._chart)) {
-                    this._chart = this.$('.' + this.model.get('chart_class'))[0];
-                }
-                return this._chart;
-            },
+            initChart: function () {
+                return new vis.LineChart(this.$getChart());
+            }
+        }),
 
-            render: function () {
-                Widget.prototype.render.apply(this, arguments);
-                this.chart = new vis.PieChart(this.getChart());
-                this.chart.draw(this.model.data);
-                return this;
+        PieChartField = Fields.PieChart = ChartField.extend({
+        }),
+
+        PieChartWidget = Widgets.PieChart = ChartWidget.extend({
+            FieldModel: PieChartField,
+
+            initChart: function () {
+                return new vis.PieChart(this.$getChart());
             }
         });
-
-
     return CherryForms;
 });
