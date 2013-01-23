@@ -1,0 +1,134 @@
+define(['underscore', 'backbone', 'core', 'utils', 'widgets/text'], function(_, Backbone, CherryForms, Utils) {
+    "use strict";
+    var Widgets = CherryForms.Widgets,
+        Widget = Widgets.Widget,
+        Fields = CherryForms.Fields,
+        Events = CherryForms.Events,
+        Unset = Utils.Unset,
+
+        Field = Fields.Field,
+        TextField = Fields.Text,
+        NumberField = Fields.Number,
+        TextWidget = Widgets.Text,
+
+        MILLISECOND = 1,
+        SECOND = MILLISECOND * 1000,
+        MINUTE = SECOND * 60,
+        HOUR = MINUTE * 60,
+        DAY = HOUR * 24,
+        WEEK = DAY * 7;
+
+    Fields.TimeDelta = Field.extend({
+        pattern: /^((\d+)w\s*)?((\d+)d\s*)?((\d+)h\s*)?((\d+)m\s*)?((\d+)s\s*)?((\d+)ms\s*)?$/i,
+        periods: [[DAY, 'd'], [HOUR, 'h'], [MINUTE, 'm'], [SECOND, 's'], [MILLISECOND, 'ms']],
+
+        validate: function (attributes, options) {
+            var value = attributes['value'];
+            if (this.pattern.test(value)) {
+                return false;
+            }
+            return NumberField.prototype.validate.call(this, attributes, options);
+        },
+
+        processValue: function () {
+            var value = this.get('value'),
+                delta = this.getDelta(value),
+                stamp = this.getStamp(value);
+
+            if (!_.isUndefined(delta)) {
+                this.value = value;
+                this.delta = delta;
+            } else if (_.isNumber(stamp)) {
+                this.value = stamp;
+                this.delta = value;
+            } else {
+                this.unsetValue();
+                return undefined;
+            }
+            this.trigger(Events.FIELD_CHANGE, this);
+            return undefined;
+        },
+
+        unsetValue: function () {
+            this.value = new Unset();
+            this.delta = '';
+            this.trigger(Events.FIELD_CLEAR, this);
+        },
+
+        dumpValue: function () {
+            return this.value;
+        },
+
+        toJSON: function () {
+            var re = TextField.prototype.toJSON.call(this);
+            re['value'] = this.delta;
+            return re;
+        },
+
+        getDelta: function (stamp) {
+            var delta = [];
+            stamp = Number(stamp);
+            if (!_.isNaN(stamp)) {
+                _.each(this.periods, function (p) {
+                    var period = p[0],
+                        q = Math.floor(stamp / period);
+                    if (q) {
+                        delta.push(q + p[1]);
+                        stamp = stamp % period;
+                    }
+                });
+                return delta.join(' ');
+            }
+            return undefined;
+        },
+
+        getStamp: function (delta) {
+            var stamp,
+                match = this.pattern.exec(delta);
+            if (!_.isNull(match)) {
+                stamp = 0;
+                _.each(this.periods, function (p, i) {
+                    var t = Number(match[(i + 2) * 2]);
+                    if (!_.isNaN(t)) {
+                        stamp += t * Number(p[0]);
+                    }
+                });
+                return stamp;
+            }
+            return undefined;
+        }
+    });
+
+    Widgets.TimeDelta = TextWidget.extend({
+        FieldModel: Fields.TimeDelta,
+        template: 'TimeDelta',
+
+        _onValidate: function() {
+            Widget.prototype._onValidate.apply(this, arguments);
+            this.getInput().val(this.model.delta);
+        }
+    });
+
+    Fields.Date = Field.extend({
+        processValue: function () {
+            var value = this.get('value');
+            this.value = new Date(this.get('value'));
+            this.trigger(Events.FIELD_CHANGE, this);
+            return undefined;
+        },
+
+        dumpValue: function () {
+            return this.value.getTime();
+        },
+
+        toJSON: function () {
+            var re = TextField.prototype.toJSON.call(this);
+            re['value'] = this.value.toDateString();
+            return re;
+        }
+    });
+
+    Widgets.Date = TextWidget.extend();
+
+    return CherryForms;
+});

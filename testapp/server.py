@@ -1,14 +1,20 @@
+import logging
 from tornado.ioloop import IOLoop
 from tornado.web import Application, os
 from cherryforms import widgets
 from cherryforms.handlers import CherryFormsHandler
 from cherrycommon.pathutils import norm_path
+from cherrycommon.timeutils import milliseconds
 
 __author__ = 'sunrize'
 
 class TestHandler(CherryFormsHandler):
     def get(self, *args, **kwargs):
-        self.render('test.html')
+        self.render('test.html',
+            now=milliseconds())
+
+    def post(self, *args, **kwargs):
+        logging.debug(self.arguments)
 
 if __name__ == '__main__':
     app = Application((('^/test', TestHandler),),

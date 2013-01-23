@@ -11,12 +11,6 @@ define(['underscore', 'backbone', 'core', 'utils'], function(_, Backbone, Cherry
         Unset = Utils.Unset,
 
         IDENTIFIER_PATTERN = Patterns.IDENTIFIER_PATTERN = /^[\w_][\w\d_\-]*$/i,
-        MILLISECOND = 1,
-        SECOND = MILLISECOND * 1000,
-        MINUTE = SECOND * 60,
-        HOUR = MINUTE * 60,
-        DAY = HOUR * 24,
-        WEEK = DAY * 7,
 
         TextField, NumberField,
         TextWidget;
@@ -110,96 +104,6 @@ define(['underscore', 'backbone', 'core', 'utils'], function(_, Backbone, Cherry
         FieldModel: Fields.Number
     });
 
-    Fields.TimeDelta = Field.extend({
-        pattern: /^((\d+)w\s*)?((\d+)d\s*)?((\d+)h\s*)?((\d+)m\s*)?((\d+)s\s*)?((\d+)ms\s*)?$/i,
-        periods: [[DAY, 'd'], [HOUR, 'h'], [MINUTE, 'm'], [SECOND, 's'], [MILLISECOND, 'ms']],
-
-        validate: function (attributes, options) {
-            var value = attributes['value'];
-            if (this.pattern.test(value)) {
-                return false;
-            }
-            return NumberField.prototype.validate.call(this, attributes, options);
-        },
-
-        processValue: function () {
-            var value = this.get('value'),
-                delta = this.getDelta(value),
-                stamp = this.getStamp(value);
-
-            if (!_.isUndefined(delta)) {
-                this.value = value;
-                this.delta = delta;
-            } else if (_.isNumber(stamp)) {
-                this.value = stamp;
-                this.delta = value;
-            } else {
-                this.unsetValue();
-                return undefined;
-            }
-            this.trigger(Events.FIELD_CHANGE, this);
-            return undefined;
-        },
-
-        unsetValue: function () {
-            this.value = new Unset();
-            this.delta = '';
-            this.trigger(Events.FIELD_CLEAR, this);
-        },
-
-        dumpValue: function () {
-            return this.value;
-        },
-
-        toJSON: function () {
-            var re = TextField.prototype.toJSON.call(this);
-            re['value'] = this.delta;
-            return re;
-        },
-
-        getDelta: function (stamp) {
-            var delta = [];
-            stamp = Number(stamp);
-            if (!_.isNaN(stamp)) {
-                _.each(this.periods, function (p) {
-                    var period = p[0],
-                        q = Math.floor(stamp / period);
-                    if (q) {
-                        delta.push(q + p[1]);
-                        stamp = stamp % period;
-                    }
-                });
-                return delta.join(' ');
-            }
-            return undefined;
-        },
-
-        getStamp: function (delta) {
-            var stamp,
-                match = this.pattern.exec(delta);
-            if (!_.isNull(match)) {
-                stamp = 0;
-                _.each(this.periods, function (p, i) {
-                    var t = Number(match[(i + 2) * 2]);
-                    if (!_.isNaN(t)) {
-                        stamp += t * Number(p[0]);
-                    }
-                });
-                return stamp;
-            }
-            return undefined;
-        }
-    });
-
-    Widgets.TimeDelta = TextWidget.extend({
-        FieldModel: Fields.TimeDelta,
-        template: 'TimeDelta',
-
-        _onValidate: function() {
-            Widget.prototype._onValidate.apply(this, arguments);
-            this.getInput().val(this.model.delta);
-        }
-    });
 
     Fields.TextArea = TextField.extend({
         defaults: function () {

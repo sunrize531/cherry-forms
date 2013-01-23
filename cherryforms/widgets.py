@@ -177,14 +177,17 @@ class NumberField(TextField):
 
 class TimeDelta(TextField):
     widget = 'TimeDelta'
+    _required_modules = 'widgets/date',
+
+class DateField(Field):
+    widget = 'Date'
+    _required_modules = 'widgets/date',
 
 class FileField(Field):
     widget = 'File'
     field_class = 'chf-field-file'
     _required_modules = 'widgets/file',
 
-class DateField(Field):
-    widget = 'Date'
 
 class TextArea(Field):
     widget = 'TextArea'
