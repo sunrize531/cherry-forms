@@ -11,7 +11,7 @@ __author__ = 'sunrize'
 class TestHandler(CherryFormsHandler):
     def get(self, *args, **kwargs):
         self.render('test.html',
-            now=milliseconds())
+            time=milliseconds() - milliseconds(days=10))
 
     def post(self, *args, **kwargs):
         logging.debug(self.arguments)

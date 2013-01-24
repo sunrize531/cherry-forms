@@ -7,6 +7,7 @@ requirejs.config({
         'backbone': 'libs/backbone-min',
         //'google': 'https://www.google.com/jsapi/',
         'handsontable': 'libs/jquery.handsontable',
+        'moment': 'libs/moment.min',
 
         'css': 'libs/require-css',
         'less': 'libs/require-less',
@@ -35,6 +36,9 @@ requirejs.config({
         'handsontable': {
             deps: ['jquery'],
             exports: 'Handsontable'
+        },
+        'moment': {
+            exports: 'moment'
         },
         'google': {
             exports: 'google'
