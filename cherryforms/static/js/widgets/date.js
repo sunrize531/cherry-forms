@@ -115,8 +115,8 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
 
     Fields.Date = Field.extend({
         processValue: function () {
-            var value = this.get('value'),
-                m = this.moment = moment.utc(value);
+            var value = Number(this.get('value')),
+                m = this.moment = moment(value);
             this.value = m.format('YYYY-MM-DD');
             this.trigger(Events.FIELD_CHANGE, this);
             return undefined;
@@ -144,7 +144,7 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
         },
 
         _onDatePicked: function (event) {
-            this.setValue(moment.utc(event.timeStamp));
+            this.setValue(moment(event.date).valueOf());
         },
 
         _onValidate: function () {
