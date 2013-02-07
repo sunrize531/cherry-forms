@@ -6,6 +6,7 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
         Widget = Widgets.Widget,
         Fields = CherryForms.Fields,
         Events = CherryForms.Events,
+        Templates = CherryForms.Templates,
         Unset = Utils.Unset,
 
         Field = Fields.Field,
@@ -22,9 +23,20 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
 
         DATE_FORMAT = 'yyyy-mm-dd';
 
+    Templates.TimeDelta = _.template(
+        '<div class="control-group">' +
+            '<label for="{{ input_id }}">{{ label }}</label>' +
+            '<input type="text" id="{{ input_id }}" value="{{ value }}" class="{{ input_class }}">' +
+            '<span class="help-block">Example: 1d 20h 20m 10s 110ms</span>' +
+        '</div>');
+
     Fields.TimeDelta = Field.extend({
         pattern: /^((\d+)w\s*)?((\d+)d\s*)?((\d+)h\s*)?((\d+)m\s*)?((\d+)s\s*)?((\d+)ms\s*)?$/i,
         periods: [[DAY, 'd'], [HOUR, 'h'], [MINUTE, 'm'], [SECOND, 's'], [MILLISECOND, 'ms']],
+
+        defaults: function () {
+            return TextField.prototype.defaults.call();
+        },
 
         validate: function (attributes, options) {
             var value = attributes['value'];
@@ -114,6 +126,10 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
     });
 
     Fields.Date = Field.extend({
+        defaults: function () {
+            return TextField.prototype.defaults.call(this);
+        },
+
         processValue: function () {
             var value = Number(this.get('value')),
                 m = this.moment = moment(value);

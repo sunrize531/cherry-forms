@@ -18,25 +18,32 @@ define(['underscore', 'backbone', 'core', 'utils'], function(_, Backbone, Cherry
     Templates.Text = _.template(
         '<div class="control-group">' +
             '<label for="{{ input_id }}">{{ label }}</label>' +
-            '<input type="text" id="{{ input_id }}" value="{{ value }}" class="input-block-level">' +
+            '<input type="text" id="{{ input_id }}" value="{{ value }}" class="{{ input_class }}">' +
         '</div>');
-    Templates.TimeDelta = _.template(
-        '<div class="control-group">' +
-            '<label for="{{ input_id }}">{{ label }}</label>' +
-            '<input type="text" id="{{ input_id }}" value="{{ value }}" class="input-block-level">' +
-            '<span class="help-block">Example: 1d 20h 20m 10s 110ms</span>' +
+
+    Templates.TextCompact = _.template(
+        '<div class="input-prepend">' +
+            '<span class="add-on">{{ label }}</span>' +
+            '<input type="text" id="{{ input_id }}" value="{{ value }}" class="{{ input_class }}">' +
         '</div>');
+
     Templates.TextArea = _.template(
         '<div class="control-group">' +
             '<label for="{{ input_id }}">{{ label }}</label>' +
             '<div class="well well-small {{ preview_class }}">{{ value }}</div>' +
             '<div class="{{ textarea_class }}">' +
-                '<textarea rows="5" cols="80" id="{{ input_id }}" class="input-block-level">{{ value }}</textarea>' +
+                '<textarea rows="5" cols="80" id="{{ input_id }}" class="{{ input_class }}">{{ value }}</textarea>' +
             '</div>' +
         '</div>');
 
 
     TextField = Fields.Text = Field.extend({
+        defaults: function () {
+            return _.extend({}, Field.prototype.defaults.call(this), {
+                'input_class': 'input-block-level'
+            });
+        },
+
         processValue: function () {
             var value = this.get('value');
             if (!value) {
@@ -109,6 +116,7 @@ define(['underscore', 'backbone', 'core', 'utils'], function(_, Backbone, Cherry
         defaults: function () {
             return _.extend({}, TextField.prototype.defaults.call(this), {
                 'field_class': 'chf-field-textarea',
+                'input_class': 'input-block-level',
                 'preview_class': 'chf-field-preview',
                 'textarea_class': 'chf-field-editor'
             });

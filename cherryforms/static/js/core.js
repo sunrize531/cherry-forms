@@ -329,7 +329,7 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                     return template;
                 }
                 if (_.isString(template)) {
-                    template = Templates[this.template];
+                    template = Templates[template];
                     if (_.isFunction(template)) {
                         return template;
                     }
