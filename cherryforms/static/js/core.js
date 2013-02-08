@@ -6,12 +6,13 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
         evaluate: /\{%(.+?)%\}/g
     };
 
-    var CherryForms = {},
+    var CherryForms = _.extend({}, Backbone.Events),
         Events = CherryForms.Events = {
             FIELD_CHANGE: 'field:change',
             FIELD_CLEAR: 'field:clear',
             FIELD_READY: 'field:ready',
-            BUTTON_CLICK: 'button:click'
+            BUTTON_CLICK: 'button:click',
+            TAB_SHOWN: 'tab:shown'
         },
 
         Widgets = CherryForms.Widgets = {},
@@ -396,6 +397,8 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                     .on(Events.FIELD_CHANGE, this._onChange, this)
                     .on(Events.FIELD_CLEAR, this._onClear, this)
                     .on('error', this._onError, this);
+                this.fields.form = this;
+                console.debug(this.fields);
                 this.valid = true;
                 this.dump = {};
             },
@@ -475,7 +478,8 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
             },
 
             render: function () {
-                var form = this,
+                var formModel = this.model,
+                    formView = this,
                     schema = CherryForms.schema;
 
                 _.each(this.$('.chf-field'), function (f) {
@@ -492,7 +496,7 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
 
                 this.$('.chf-form-buttons :button').each(function () {
                     var button = new Button({el: this});
-                    button.render().on(Events.BUTTON_CLICK, form.submit);
+                    button.render().on(Events.BUTTON_CLICK, formView.submit);
                 });
 
                 this.$('.tab-content > div').addClass('tab-pane fade');
@@ -500,7 +504,9 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                 this.$('ul.nav a').click(function (e) {
                     e.preventDefault();
                     $(this).tab('show');
+                    CherryForms.trigger(Events.TAB_SHOWN);
                 });
+
                 if ($('ul.nav .active').length) {
                     this.$('ul.nav .active').removeClass('active').find('a').tab('show');
                 } else {

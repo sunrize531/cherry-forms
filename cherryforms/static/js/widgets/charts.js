@@ -59,6 +59,7 @@ define(['underscore', 'core',
                 Widget.prototype.render.apply(this, arguments);
                 this.refreshChart();
                 this.listenTo(this.model, DATA_UPDATE_EVENT, this.refreshChart);
+                this.listenTo(CherryForms, Events.TAB_SHOWN, this.refreshChart);
                 return this;
             },
 
