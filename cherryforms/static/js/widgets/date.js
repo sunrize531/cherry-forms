@@ -1,5 +1,5 @@
 define(['underscore', 'backbone', 'core', 'utils', 'moment',
-    'widgets/text', 'libs/bootstrap-datepicker',
+    'widgets/text', 'datepicker',
     'css!datepicker.css'], function(_, Backbone, CherryForms, Utils, moment) {
     "use strict";
     var Widgets = CherryForms.Widgets,
