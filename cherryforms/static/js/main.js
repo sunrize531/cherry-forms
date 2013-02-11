@@ -5,8 +5,8 @@ requirejs.config({
         'bootstrap': 'libs/bootstrap.min',
         'underscore': 'libs/underscore-min',
         'backbone': 'libs/backbone-min',
-        //'google': 'https://www.google.com/jsapi/',
         'handsontable': 'libs/jquery.handsontable',
+        'datepicker': 'libs/bootstrap-datepicker',
         'moment': 'libs/moment.min',
 
         'css': 'libs/require-css',
@@ -33,15 +33,15 @@ requirejs.config({
         'lessjs': {
             exports: 'less'
         },
+        'datepicker': {
+            deps: ['jquery', 'bootstrap']
+        },
         'handsontable': {
             deps: ['jquery'],
             exports: 'Handsontable'
         },
         'moment': {
             exports: 'moment'
-        },
-        'google': {
-            exports: 'google'
         }
     }
 });
