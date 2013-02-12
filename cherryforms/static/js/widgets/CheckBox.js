@@ -14,8 +14,8 @@ define(['underscore', 'core'], function (_, CherryForms) {
 
     Widgets.CheckBox = Widget.extend({
         template: _.template(
-                '<label class="checkbox">' +
-                '<input type="checkbox" value="true"{% if (value) { %} checked{% } %}> {{ label }}</label>'),
+            '<label class="checkbox">' +
+            '<input type="checkbox" value="true"{% if (value) { %} checked{% } %}> {{ label }}</label>'),
         FieldModel: CheckBoxField
     });
 });

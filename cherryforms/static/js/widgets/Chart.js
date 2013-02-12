@@ -8,10 +8,9 @@ define(['underscore', 'core',
         Field = Fields.Field,
         Events = CherryForms.Events,
         vis = google.visualization,
-
         DATA_UPDATE_EVENT = 'chart:data_update',
 
-        ChartField = Field.extend({
+        ChartField = Fields.Chart = Field.extend({
             defaults: function () {
                 return _.extend({}, Field.prototype.defaults.call(this), {
                     chart_class: 'chf-chart'
@@ -30,7 +29,7 @@ define(['underscore', 'core',
             }
         }),
 
-        ChartWidget = Widget.extend({
+        ChartWidget = Widgets.Chart = Widget.extend({
             template: _.template('<div class="control-group">' +
                 '<label>{{ label }}</label>' +
                 '<div class="{{ chart_class }}"></div>' +
@@ -66,28 +65,8 @@ define(['underscore', 'core',
             refreshChart: function () {
                 this.getChart().draw(this.model.data);
             }
-        }),
-
-        LineChartField = Fields.LineChart = ChartField.extend({
-        }),
-
-        LineChartWidget = Widgets.LineChart = ChartWidget.extend({
-            FieldModel: LineChartField,
-
-            initChart: function () {
-                return new vis.LineChart(this.$getChart());
-            }
-        }),
-
-        PieChartField = Fields.PieChart = ChartField.extend({
-        }),
-
-        PieChartWidget = Widgets.PieChart = ChartWidget.extend({
-            FieldModel: PieChartField,
-
-            initChart: function () {
-                return new vis.PieChart(this.$getChart());
-            }
         });
+
     return CherryForms;
 });
+

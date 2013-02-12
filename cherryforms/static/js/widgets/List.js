@@ -1,5 +1,4 @@
-define(['underscore', 'backbone', 'core',
-    'widgets/text', 'widgets/select',
+define(['underscore', 'backbone', 'core', 'widgets/Text', 'widgets/Select',
     'less!chf-list.less'], function (_, Backbone, CherryForms) {
     "use strict";
     var Widgets = CherryForms.Widgets,
@@ -152,7 +151,6 @@ define(['underscore', 'backbone', 'core',
         },
 
         dumpValue: function () {
-            console.debug('ListField.dumpValue', this.plainValue());
             return JSON.stringify(this.plainValue());
         },
 
@@ -177,8 +175,6 @@ define(['underscore', 'backbone', 'core',
             if (!read_only) {
                 events['click .' + this.options['trash_icon']] = '_removeItem';
             }
-
-            console.debug('ListItemView.events', events);
             return events;
         },
 
@@ -196,7 +192,6 @@ define(['underscore', 'backbone', 'core',
         },
 
         _removeItem: function (event) {
-            console.debug('ListItemView._removeItem', this.model);
             this.model.collection.remove(this.model);
             this.$el.detach();
             return false;

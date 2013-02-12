@@ -25,6 +25,5 @@ define(['underscore', 'backbone', 'core'], function(_, Backbone, CherryForms) {
             this.model.set('value', this.getInput()[0].files[0]);
         }
     });
-
     return CherryForms;
 });

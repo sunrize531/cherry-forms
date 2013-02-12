@@ -212,7 +212,8 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                 return {
                     'changed': false,
                     'field_id': _.uniqueId('chf-field-'),
-                    'field_class': ''
+                    'field_class': '',
+                    'input_class': 'input-block-level'
                 };
             },
 
@@ -273,6 +274,16 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                 return this.find(function (field) {
                     return field.get('field') === fieldName;
                 });
+            },
+
+            addField: function (field) {
+                if (field instanceof Field) {
+                    this.add(field);
+                } else {
+                    require(['widgets/' + field['widget']], _.bind(function () {
+                        this.add(field);
+                    }, this));
+                }
             }
         }),
 
@@ -324,8 +335,8 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                 return this.model.get('input_id');
             },
 
-            getTemplate: function () {
-                var template = this.model.get('template') || this.template;
+            getTemplate: function (template) {
+                template = template || this.model.get('template') || this.template;
                 if (_.isFunction(template)) {
                     return template;
                 }
@@ -390,21 +401,34 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
             }
         }),
 
-        Form = Backbone.Model.extend({
-            initialize: function () {
-                this.fields = new Schema();
-                this.fields
+        Form = Models.Form = Backbone.Model.extend({
+            initialize: function (attributes, options) {
+                this.fields = this.get('fields') || new Schema();
+                var fields = this.get('fields');
+                if (fields instanceof Schema) {
+                    this.fields = fields;
+                } else if (_.isArray(fields)) {
+                    fields = this.fields = new Schema(fields);
+                } else {
+                    fields = this.fields = new Schema();
+                }
+                fields
                     .on(Events.FIELD_CHANGE, this._onChange, this)
                     .on(Events.FIELD_CLEAR, this._onClear, this)
                     .on('error', this._onError, this);
-                this.fields.form = this;
-                console.debug(this.fields);
+                fields.form = this;
+
                 this.valid = true;
                 this.dump = {};
             },
 
             getField: function (fieldName) {
                 return this.fields.getField(fieldName);
+            },
+
+            addField: function (field) {
+                console.debug(field);
+                return this.fields.addField(field);
             },
 
             _onChange: function (field) {
@@ -464,24 +488,50 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
             },
 
             addWidget: function (field, $el) {
+                this.renderWidget(field, $el);
+                var fields = this.model.fields;
+                if (fields.get(field.id) !== field) {
+                    fields.add(field);
+                }
+            },
+
+            renderWidget: function (field, $el) {
                 var fieldID = field.id,
                     WidgetClass, widget;
                 if (_.isUndefined($el)) {
                     $el = this.$('#chf-field-' + fieldID);
                 }
+                WidgetClass = Widgets[field.get('widget')];
                 if ($el.length) {
-                    WidgetClass = Widgets[field.get('widget')];
                     widget = new WidgetClass(_.extend({form: this, el: $el, model: field}));
                     widget.render();
-                    this.model.fields.add(widget.model);
+                } else {
+
+                    widget = new WidgetClass(_.extend({
+                        form: this,
+                        model: field,
+                        id: fieldID,
+                        className: field.get['className'] || 'chf-field'
+                    }));
+                    widget.render();
+                    console.debug('Element not found in DOM. Appending to form content.', widget.el);
+                    console.debug(this.el);
+                    $(this.el).append(widget.$el);
                 }
             },
 
             render: function () {
                 var formModel = this.model,
                     formView = this,
-                    schema = CherryForms.schema;
+                    schema = CherryForms.schema,
+                    fields = formModel.fields;
 
+                // Render fields.
+                this.model.fields.each(function (field) {
+                    this.renderWidget(field);
+                });
+
+                // Find and try to render pre-layout widgets.
                 _.each(this.$('.chf-field'), function (f) {
                     var $field = $(f),
                         fieldID = $field.prop('id'),
@@ -490,9 +540,14 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                         this.addWidget(field, $field);
                     }
                 }, this);
+
                 schema.on('add', function (field) {
                     this.addWidget(field);
                 }, this);
+                fields.on('add', function (field) {
+                    this.addWidget(field);
+                }, this);
+
 
                 this.$('.chf-form-buttons :button').each(function () {
                     var button = new Button({el: this});

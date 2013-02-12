@@ -1,6 +1,5 @@
-define(['underscore', 'backbone', 'core', 'utils', 'moment',
-    'widgets/text', 'datepicker',
-    'css!datepicker.css'], function(_, Backbone, CherryForms, Utils, moment) {
+define(['underscore', 'backbone', 'core', 'utils',
+    'widgets/Text', 'widgets/Number'], function(_, Backbone, CherryForms, Utils) {
     "use strict";
     var Widgets = CherryForms.Widgets,
         Widget = Widgets.Widget,
@@ -33,10 +32,6 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
     Fields.TimeDelta = Field.extend({
         pattern: /^((\d+)w\s*)?((\d+)d\s*)?((\d+)h\s*)?((\d+)m\s*)?((\d+)s\s*)?((\d+)ms\s*)?$/i,
         periods: [[DAY, 'd'], [HOUR, 'h'], [MINUTE, 'm'], [SECOND, 's'], [MILLISECOND, 'ms']],
-
-        defaults: function () {
-            return TextField.prototype.defaults.call();
-        },
 
         validate: function (attributes, options) {
             var value = attributes['value'];
@@ -124,50 +119,5 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
             this.getInput().val(this.model.delta);
         }
     });
-
-    Fields.Date = Field.extend({
-        defaults: function () {
-            return TextField.prototype.defaults.call(this);
-        },
-
-        processValue: function () {
-            var value = Number(this.get('value')),
-                m = this.moment = moment(value);
-            this.value = m.format('YYYY-MM-DD');
-            this.trigger(Events.FIELD_CHANGE, this);
-            return undefined;
-        },
-
-        dumpValue: function () {
-            return this.moment.valueOf();
-        },
-
-        toJSON: function () {
-            var re = Field.prototype.toJSON.call(this);
-            re['value'] = this.value;
-            return re;
-        }
-    });
-
-
-    Widgets.Date = TextWidget.extend({
-        render: function () {
-            TextWidget.prototype.render.call(this);
-            _.bindAll(this, '_onDatePicked');
-            var datepicker = this.getInput()
-                .datepicker({format: 'yyyy-mm-dd'})
-                .on('changeDate', this._onDatePicked);
-        },
-
-        _onDatePicked: function (event) {
-            this.setValue(moment(event.date).valueOf());
-        },
-
-        _onValidate: function () {
-            Widget.prototype._onValidate.apply(this, arguments);
-            this.getInput().val(this.model.value);
-        }
-    });
-
     return CherryForms;
 });

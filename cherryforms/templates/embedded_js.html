@@ -1,6 +1,6 @@
 /* {{ class_name }} */
 require({% raw json_encode(modules) %}, function(CherryForms) {
-{% for field in fields %}CherryForms.schema.add({% raw json_encode(field) %});
+{% for field in fields %}CherryForms.schema.addField({% raw json_encode(field) %});
 {% end %}
 {% for l in less %}CherryForms.less.push('{% raw l %}');
 {% end %}{% raw embedded %}

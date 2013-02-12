@@ -174,81 +174,88 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
             plainValue: function () {
                 return this.dumpValue();
             }
-        });
+        }),
 
+        OptionTemplate = Templates.Option = _.template(
+            '<option value="{{ value }}"{% if (selected) { %} selected{% } %}>' +
+                '{% if (title) { %}{{ title }}{% } else { %}{{ value }}{% } %}</option>'
+        ),
 
-    Templates.Option = _.template(
-        '<option value="{{ value }}"{% if (selected) { %} selected{% } %}>' +
-            '{% if (title) { %}{{ title }}{% } else { %}{{ value }}{% } %}</option>'
-    );
-    Templates.Select = _.template(
+        SelectTemplate = Templates.Select = _.template(
         '<div class="control-group">' +
             '<label for="{{ input_id }}">{{ label }}</label>' +
-            '<select id="{{ input_id }}" class="input-block-level"></select>' +
-        '</div>');
+            '<select id="{{ input_id }}" class="{{ input_class }}"></select>' +
+        '</div>'),
 
-    Widgets.Select = Widget.extend({
-        FieldModel: SelectField,
-        template: Templates.Select,
+        SelectWidget = Widgets.Select = Widget.extend({
+            FieldModel: SelectField,
+            template: Templates.Select,
+            optionsTemplate: Templates.Option,
 
-        initialize: function () {
-            Widget.prototype.initialize.apply(this, arguments);
-            this.choices = this.model.choices;
-            this.choices
-                .on('add', this.renderOption, this)
-                .on('remove', this.detachOption, this)
-                .on('change:selected', this.updateOption, this)
-                .on('change:hidden', this.hideOption, this);
-        },
+            initialize: function () {
+                Widget.prototype.initialize.apply(this, arguments);
+                this.choices = this.model.choices;
+                this.choices
+                    .on('add', this.renderOption, this)
+                    .on('remove', this.detachOption, this)
+                    .on('change:selected', this.updateOption, this)
+                    .on('change:hidden', this.hideOption, this);
+            },
 
-        $getOption: function (option) {
-            return this.getInput().find('option[value="' + option.get('value') + '"]');
-        },
+            $getOption: function (option) {
+                return this.getInput().find('option[value="' + option.get('value') + '"]');
+            },
 
-        addOption: function (option) {
-            this.choices.add(option);
-        },
+            addOption: function (option) {
+                this.choices.add(option);
+            },
 
-        removeOption: function (option) {
-            this.choices.removeOption(option);
-        },
+            removeOption: function (option) {
+                this.choices.removeOption(option);
+            },
 
-        renderOption: function (option) {
-            option = this.choices.get(option);
-            if (!_.isUndefined(option)) {
-                var $option = $(Templates.Option(option.toJSON())).appendTo(this.getInput());
-                if (option.get('hidden')) {
-                    $option.hide();
+            renderOption: function (option) {
+                option = this.choices.get(option);
+                if (!_.isUndefined(option)) {
+                    var optionTemplate = this.getTemplate(this.optionsTemplate),
+                        $option = $(optionTemplate(option.toJSON())).appendTo(this.getInput());
+                    if (option.get('hidden')) {
+                        $option.hide();
+                    }
                 }
+            },
+
+            detachOption: function (option) {
+                this.$getOption.detach();
+                if (option.get('selected')) {
+                    this.setValue(undefined);
+                }
+            },
+
+            updateOption: function (option) {
+                this.$getOption(option).prop(
+                    'selected',
+                    option.get('selected')
+                );
+            },
+
+            hideOption: function (option) {
+                if (option.get('hidden')) {
+                    this.$getOption(option).hide();
+                } else {
+                    this.$getOption(option).show();
+                }
+            },
+
+            render: function () {
+                Widget.prototype.render.call(this);
+                var $select = this.getInput().empty();
+                $select.append(this.choices.map(this.renderOption, this));
             }
-        },
+        }),
 
-        detachOption: function (option) {
-            this.$getOption.detach();
-            if (option.get('selected')) {
-                this.setValue(undefined);
-            }
-        },
-
-        updateOption: function (option) {
-            this.$getOption(option).prop(
-                'selected',
-                option.get('selected')
-            );
-        },
-
-        hideOption: function (option) {
-            if (option.get('hidden')) {
-                this.$getOption(option).hide();
-            } else {
-                this.$getOption(option).show();
-            }
-        },
-
-        render: function () {
-            Widget.prototype.render.call(this);
-            var $select = this.getInput().empty();
-            $select.append(this.choices.map(this.renderOption, this));
-        }
-    });
+        PillsWidget = Widgets.Pills = SelectWidget.extend({
+            FieldModel: SelectField,
+            template: _.template('')
+        });
 });

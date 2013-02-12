@@ -11,6 +11,7 @@ from cherryforms.handlers import CherryStaticHandler
 _templates_loader = Loader(root_directory=path.join(curdir, 'templates'))
 _registered_handlers = {}
 
+
 class CherryFormsModule(UIModule):
     template = ''
     handlers = ()
@@ -81,6 +82,7 @@ class CherryFormsModule(UIModule):
         self._add_handlers(specs)
 
     url_pattern = '{prefix}{url}'
+
     def prepare_url(self, url, prefix=None, **kwargs):
         if re.match('https?://', url) or url.startswith('/'):
             prefix = ''
@@ -91,15 +93,19 @@ class CherryFormsModule(UIModule):
 
 class Link(CherryFormsModule):
     template = ''
+
     def render(self, url, prefix=None, **kwargs):
         return self.render_string(self.template, url=self.prepare_url(url, prefix, **kwargs), **kwargs)
+
 
 class CSSLink(Link):
     template = 'css_link.html'
     url_pattern = '{prefix}css/{url}'
 
+
 class LessLink(CSSLink):
     template = 'less_link.html'
+
 
 class JSLink(Link):
     template = 'js_link.html'
@@ -108,8 +114,10 @@ class JSLink(Link):
     def render(self, file_name, prefix=None, defer=False, async=False):
         return super(JSLink, self).render(file_name, prefix, defer=defer, async=async)
 
+
 class Button(UIModule):
     template = 'button.html'
+
     def render(self, id, label=None, bootstrap_type=None, **kwargs):
         return self.render_string(self.template, id=id, label=label or id, bootstrap_type=bootstrap_type, **kwargs)
 
@@ -124,8 +132,8 @@ class Field(CherryFormsModule):
     _css_files = ()
     _less_files = ()
     handlers = ()
-
     _fields = {}
+
     def javascript_files(self):
         return [self.prepare_url(url) for url in self._javascript_files]
 
@@ -143,6 +151,7 @@ class Field(CherryFormsModule):
     _fields_counter = 0
     _fields_lock = Lock()
     _field_id_pattern = '{}|{}|{}'
+
     @classmethod
     def get_field_id(cls, field):
         field_id_src = cls._field_id_pattern.format(field, cls.widget, cls._fields_counter)
@@ -165,79 +174,81 @@ class Field(CherryFormsModule):
         self._fields.setdefault(self.__class__.__name__, []).append(options)
         return self.render_string(self.template, **options)
 
+
 class HiddenField(Field):
     widget = 'Hidden'
 
+
 class TextField(Field):
     widget = 'Text'
-    _required_modules = 'widgets/text',
+
 
 class NumberField(TextField):
     widget = 'Number'
 
+
 class TimeDelta(TextField):
     widget = 'TimeDelta'
-    _required_modules = 'widgets/date',
+
 
 class DateField(Field):
     widget = 'Date'
-    _required_modules = 'widgets/date',
+
 
 class FileField(Field):
     widget = 'File'
     field_class = 'chf-field-file'
-    _required_modules = 'widgets/file',
 
 
 class TextArea(Field):
     widget = 'TextArea'
     field_class = 'chf-field-textarea'
-    _required_modules = 'widgets/text',
+
 
 class SelectField(Field):
     widget = 'Select'
-    _required_modules = 'widgets/select',
+
 
 class CheckBox(Field):
     widget = 'CheckBox'
     field_class = 'chf-field-checkbox'
-    _required_modules = 'widgets/checkbox',
+
 
 class ListField(Field):
     widget = 'List'
     field_class = 'chf-field-list'
-    _required_modules = 'widgets/select', 'widgets/list',
+
 
 class ObjectField(Field):
     widget = 'Object'
     field_class = 'chf-field-object'
 
+
 class DocumentField(Field):
     widget = 'Document'
     field_class = 'chf-field-document'
-    _required_modules = 'widgets/document',
+
 
 class DocumentListField(Field):
     widget = 'DocumentList'
     field_class = 'chf-field-document-list'
-    _required_modules = 'widgets/document-list',
+
 
 class DocumentGridField(Field):
     widget = 'DocumentGrid'
     field_class = 'chf-field-document-grid'
-    _required_modules = 'widgets/document-grid',
+
 
 class TreeField(Field):
     widget = 'Tree'
     field_class = 'chf-field-tree'
-    _required_modules = 'widgets/tree',
+
 
 class LineChart(Field):
     widget = 'LineChart'
     field_class = 'chf-field-chart'
-    _required_modules = 'widgets/charts',
+
 
 class PieChart(Field):
     widget = 'PieChart'
     field_class = 'chf-field-chart'
-    _required_modules = 'widgets/charts',
