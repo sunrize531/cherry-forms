@@ -47,6 +47,7 @@ define(['underscore', 'backbone', 'core', 'widgets/Select',
                 var $pill = $(event.target),
                     value = $pill.data('value');
                 this.setValue(value);
+                return false;
             }
         });
 });
