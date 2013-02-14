@@ -12,8 +12,8 @@
     var CherryFormsConfig = {
         baseUrl: '../cherryforms/static/js/',
         config: {
-            'less_path': '../cherryforms/static/css/',
-            'css_path':  '../cherryforms/static/css/'
+            'less_path': '../css/',
+            'css_path':  '../css/'
         }
     };
 </script>
@@ -29,6 +29,10 @@ require(['underscore', 'core'], function (_, CherryForms) {
 
     form.addField({field: 'text_field', widget: 'Text', label: 'Text field:', value: 'Text value'});
     form.addField({field: 'identifier_field', widget: 'Identifier', label: 'Identifier field:', value: 'some_id'});
+    form.addField({field: 'pills_selector', widget: 'Pills', label: 'Take the pill:', choices: [
+            ['blue', 'Blue pill'],
+            ['red', 'Red pill']
+        ], value: 'red'});
 });
 </script>
 </head>

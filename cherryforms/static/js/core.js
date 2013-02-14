@@ -491,7 +491,7 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                 this.renderWidget(field, $el);
                 var fields = this.model.fields;
                 if (fields.get(field.id) !== field) {
-                    fields.add(field);
+                    fields.add(field, {silent: true});
                 }
             },
 
@@ -506,7 +506,6 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                     widget = new WidgetClass(_.extend({form: this, el: $el, model: field}));
                     widget.render();
                 } else {
-
                     widget = new WidgetClass(_.extend({
                         form: this,
                         model: field,
@@ -544,9 +543,11 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                 schema.on('add', function (field) {
                     this.addWidget(field);
                 }, this);
+
                 fields.on('add', function (field) {
                     this.addWidget(field);
                 }, this);
+
 
 
                 this.$('.chf-form-buttons :button').each(function () {

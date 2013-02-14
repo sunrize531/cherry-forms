@@ -58,7 +58,7 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
             },
 
             get: function (value) {
-                if (value instanceof Option && _.has(this._byCid, value.cid)) {
+                if (value instanceof Option && _.has(this._byId, value.cid)) {
                     return value;
                 }
                 return this.find(function (option) {
@@ -86,6 +86,7 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
             select: function (value, options) {
                 var previous = this.selected(),
                     current = this.get(value) || this.def();
+
                 if (!_.isUndefined(previous)) {
                     previous.set('selected', false, {silent: true});
                 }
@@ -105,9 +106,8 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
                 } else if (_.isNull(this.get('value')) || _.isUndefined(this.get('value'))) {
                     this.set('value', choices.def().get('value'));
                 }
-                this.choices
-                    .on('remove', this._onRemoveOption, this)
-                    .on('change:selected', this._onSelectOption, this);
+                this.listenTo(choices, 'remove', this._onRemoveOption);
+                this.listenTo(choices, 'change:selected', this._onSelectOption);
                 Field.prototype.initialize.apply(this, arguments);
             },
 
@@ -194,12 +194,11 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
 
             initialize: function () {
                 Widget.prototype.initialize.apply(this, arguments);
-                this.choices = this.model.choices;
-                this.choices
-                    .on('add', this.renderOption, this)
-                    .on('remove', this.detachOption, this)
-                    .on('change:selected', this.updateOption, this)
-                    .on('change:hidden', this.hideOption, this);
+                var choices = this.choices = this.model.choices;
+                this.listenTo(choices, 'add', this.renderOption);
+                this.listenTo(choices, 'remove', this.detachOption);
+                this.listenTo(choices, 'change:selected', this.updateOption);
+                this.listenTo(choices, 'change:hidden', this.hideOption);
             },
 
             $getOption: function (option) {
@@ -218,7 +217,8 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
                 option = this.choices.get(option);
                 if (!_.isUndefined(option)) {
                     var optionTemplate = this.getTemplate(this.optionsTemplate),
-                        $option = $(optionTemplate(option.toJSON())).appendTo(this.getInput());
+                        optionData = _.defaults(option.toJSON(), this.model.toJSON()),
+                        $option = $(optionTemplate(optionData)).appendTo(this.getInput());
                     if (option.get('hidden')) {
                         $option.hide();
                     }
@@ -249,13 +249,10 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
 
             render: function () {
                 Widget.prototype.render.call(this);
-                var $select = this.getInput().empty();
+                var $select = this.getInput();
                 $select.append(this.choices.map(this.renderOption, this));
             }
-        }),
-
-        PillsWidget = Widgets.Pills = SelectWidget.extend({
-            FieldModel: SelectField,
-            template: _.template('')
         });
+
+    return CherryForms;
 });

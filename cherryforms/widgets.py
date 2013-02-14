@@ -209,6 +209,11 @@ class SelectField(Field):
     widget = 'Select'
 
 
+class PillsField(Field):
+    widget = 'Pills'
+    field_class = 'chf-field-pills'
+
+
 class CheckBox(Field):
     widget = 'CheckBox'
     field_class = 'chf-field-checkbox'
