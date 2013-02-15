@@ -63,7 +63,6 @@ class CherryStaticHandler(StaticFileHandler):
                 self.set_header("Content-Length", len(data))
 
 
-
 class CherryFormsHandler(RequestHandler):
     def get_argument(self, name, default=RequestHandler._ARG_DEFAULT, strip=True):
         argument = super(CherryFormsHandler, self).get_argument(name, default, strip)
@@ -86,13 +85,13 @@ class CherryFormsHandler(RequestHandler):
         cherryforms_settings = CherryFormsSettings(self.application)
         return CherryTemplateLoader([template_path] + cherryforms_settings['template_path'], **kwargs)
 
-
     def pop_argument(self, name, default=RequestHandler._ARG_DEFAULT, strip=True):
         argument = self.get_argument(name, default, strip)
         del self.request.arguments[name]
         return argument
 
     action_argument = '_action'
+
     @property
     def action(self):
         if not hasattr(self, '_action'):
@@ -100,6 +99,7 @@ class CherryFormsHandler(RequestHandler):
         return self._action
 
     skip_fields = ()
+
     @property
     def arguments(self):
         arguments = self.request.arguments
