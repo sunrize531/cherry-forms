@@ -16,6 +16,7 @@ define(['underscore', 'core'], function (_, CherryForms) {
         template: _.template(
             '<label class="checkbox">' +
             '<input type="checkbox" value="true"{% if (value) { %} checked{% } %}> {{ label }}</label>'),
-        FieldModel: CheckBoxField
+        FieldModel: CheckBoxField,
+        className: 'chf-field-checkbox'
     });
 });

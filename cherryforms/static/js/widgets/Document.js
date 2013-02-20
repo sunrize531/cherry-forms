@@ -66,6 +66,7 @@ define(['underscore', 'backbone', 'core',
     });
 
     DocumentWidget = Widgets.Document = Widget.extend({
+        className: 'chf-field-document',
         template: _.template('<div class="control-group">' +
             '<label>{{ label }}</label>' +
             '<div class="accordion-group">' +

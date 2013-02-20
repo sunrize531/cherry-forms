@@ -27,6 +27,8 @@
     choices=[1, 2, [3, 'three'], {'value': 4, 'title': 'four'}]) %}
 {% module PillsField('pills_select', label='Take a pill:', value=1, not_null=True,
     choices=[['blue', 'Blue pill'], ['red', 'Red pill']]) %}
+{% module RadioGroup('radio_group', label='Select a radio:', value=1, not_null=True,
+    choices=[['soma', 'Soma'], ['calm', 'Calm']]) %}
 </div>
 <div id="list">
 {% module ListField('options_list', label='List with options:', value=[3, 4],

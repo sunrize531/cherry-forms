@@ -216,7 +216,7 @@ class PillsField(Field):
 
 class RadioGroup(Field):
     widget = 'RadioGroup'
-    field_class = 'chf-field-radio-group'
+    field_class = 'chf-field-buttons-group'
 
 
 class CheckBox(Field):

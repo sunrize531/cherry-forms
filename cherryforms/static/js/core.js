@@ -289,6 +289,7 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
 
         Widget = Widgets.Widget = Backbone.View.extend({
             FieldModel: Field,
+            className: 'chf-field',
 
             attributes: function () {
                 var classes = ['chf-field'],

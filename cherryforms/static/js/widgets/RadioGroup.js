@@ -1,5 +1,5 @@
 define(['underscore', 'backbone', 'core', 'widgets/Select',
-    'less!chf-pills.less'], function (_, Backbone, CherryForms) {
+    'less!chf-buttons-group.less'], function (_, Backbone, CherryForms) {
     "use strict";
     var Widgets = CherryForms.Widgets,
         Fields = CherryForms.Fields,
@@ -17,37 +17,40 @@ define(['underscore', 'backbone', 'core', 'widgets/Select',
         }),
 
         RadioGroupWidget = Widgets.RadioGroup = Widgets.Select.extend({
+            className: 'chf-field-buttons-group',
             FieldModel: RadioGroupField,
             template: _.template('<label>{{ label }}</label>' +
                 '<div id="{{ input_id }}" class="btn-group {{ group_class }}" data-toggle="buttons-radio"></div>'),
-            optionsTemplate: _.template('<button type="button" class="btn btn-mini {{ button_class }}">' +
+            optionsTemplate: _.template(
+                '<button type="button" ' +
+                    'class="btn btn-small {{ button_class }}{% if (selected) { %} active{% } %}" ' +
+                    'data-value="{{ value }}">' +
                 '{{ title }}</button>'),
 
             $getOption: function (option) {
                 return this.getInput().find(
-                    '.' + this.model.get('pill_class') + '[data-value="' + option.get('value') + '"]');
+                    '.' + this.model.get('button_class') + '[data-value="' + option.get('value') + '"]');
             },
 
             events: function () {
                 var events = {};
-                events['click .' + this.model.get('pill_class')] = '_onPillClick';
+                events['click .' + this.model.get('button_class')] = '_onOptionClick';
                 return events;
             },
 
             updateOption: function (option) {
                 var selected = Boolean(option.get('selected')),
                     $li = this.$getOption(option).parent('li');
-                this.$('li').removeClass('active');
+                this.$('.' + this.model.get('button_class')).removeClass('active');
                 if (selected) {
                     $li.addClass('active');
                 }
             },
 
-            _onPillClick: function (event) {
-                var $pill = $(event.target),
-                    value = $pill.data('value');
+            _onOptionClick: function (event) {
+                var $option = $(event.target),
+                    value = $option.data('value');
                 this.setValue(value);
-                return false;
             }
         });
 });
