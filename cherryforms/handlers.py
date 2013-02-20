@@ -10,6 +10,7 @@ from tornado.web import StaticFileHandler, RequestHandler, HTTPError, email
 from cherryforms import module_path, CherryFormsSettings, CherryTemplateLoader
 from cherrycommon.pathutils import norm_path, file_path
 
+
 class CherryStaticHandler(StaticFileHandler):
     def initialize(self, path=(), default_filename=None):
         if isinstance(path, basestring):
@@ -115,6 +116,3 @@ class CherryFormsHandler(RequestHandler):
         if target:
             redirect['target'] = target
         self.write(redirect)
-
-
-
