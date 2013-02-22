@@ -198,6 +198,7 @@ define(['underscore', 'backbone', 'core',
         }),
 
         DocumentListWidget = Widgets.DocumentList = Widget.extend({
+            className: 'chf-field-document-grid',
             template: _.template('<div class="control-group">' +
                 '<label>{{ label }}</label>' +
                 '<div class="accordion {{ items_class }}"></div>' +

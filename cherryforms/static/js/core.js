@@ -289,6 +289,7 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
 
         Widget = Widgets.Widget = Backbone.View.extend({
             FieldModel: Field,
+            className: 'chf-field',
 
             attributes: function () {
                 var classes = ['chf-field'],
@@ -427,7 +428,6 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
             },
 
             addField: function (field) {
-                console.debug(field);
                 return this.fields.addField(field);
             },
 
@@ -513,8 +513,6 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                         className: field.get['className'] || 'chf-field'
                     }));
                     widget.render();
-                    console.debug('Element not found in DOM. Appending to form content.', widget.el);
-                    console.debug(this.el);
                     $(this.el).append(widget.$el);
                 }
             },
@@ -523,7 +521,8 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                 var formModel = this.model,
                     formView = this,
                     schema = CherryForms.schema,
-                    fields = formModel.fields;
+                    fields = formModel.fields,
+                    $nav, $tab, hash;
 
                 // Render fields.
                 this.model.fields.each(function (field) {
@@ -548,8 +547,6 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                     this.addWidget(field);
                 }, this);
 
-
-
                 this.$('.chf-form-buttons :button').each(function () {
                     var button = new Button({el: this});
                     button.render().on(Events.BUTTON_CLICK, formView.submit);
@@ -557,18 +554,45 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
 
                 this.$('.tab-content > div').addClass('tab-pane fade');
                 this.$('ul.nav').tab();
-                this.$('ul.nav a').click(function (e) {
-                    e.preventDefault();
-                    $(this).tab('show');
-                    CherryForms.trigger(Events.TAB_SHOWN);
-                });
+                this.$('ul.nav a').click(_.bind(this.onNavClick, this));
 
-                if ($('ul.nav .active').length) {
-                    this.$('ul.nav .active').removeClass('active').find('a').tab('show');
+                // Try to show the tab in hash
+                hash = window.location.hash;
+                if (hash) {
+                    $tab = $('ul.nav a[href="' + hash + '"]');
                 } else {
-                    this.$('ul.nav a:first').tab('show');
+                    $tab = this.$('ul.nav a:first');
+                }
+                if ($tab.length) {
+                    this.showTab($tab);
                 }
                 return this;
+            },
+
+            hash: null,
+            setHash: function (hash) {
+                var scroll = $('body').scrollTop();
+                window.location.hash = hash;
+                $('html,body').scrollTop(scroll);
+                this.hash = hash;
+            },
+
+            onNavClick: function (e) {
+                e.preventDefault();
+                var $this = $(e.currentTarget),
+                    href = $this.prop('href'),
+                    hash = href.substr(href.indexOf('#') + 1);
+                $this.tab('show');
+                CherryForms.trigger(Events.TAB_SHOWN, hash);
+                this.setHash(hash);
+            },
+
+            showTab: function ($tab) {
+                var href = $tab.prop('href'),
+                    hash = href.substr(href.indexOf('#') + 1);
+                $tab.tab('show');
+                CherryForms.trigger(Events.TAB_SHOWN, hash);
+                this.setHash(hash);
             },
 
             getWidget: function (field) {

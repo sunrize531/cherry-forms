@@ -28,6 +28,7 @@ define(['underscore', 'backbone', 'core', 'widgets/Text'], function(_, Backbone,
     Widgets.TextArea = Widget.extend({
         FieldModel: Fields.TextArea,
         template: 'TextArea',
+        className: 'chf-field-textarea',
 
         events: function () {
             var events = Widget.prototype.events.call(this);

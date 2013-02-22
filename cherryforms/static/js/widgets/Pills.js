@@ -17,6 +17,7 @@ define(['underscore', 'backbone', 'core', 'widgets/Select',
         }),
 
         PillsWidget = Widgets.Pills = Widgets.Select.extend({
+            className: 'chf-field-pills',
             FieldModel: PillsField,
             template: _.template('<ul class="nav nav-pills {{ pills_class }}" id="{{ input_id }}">' +
                 '<li class="disabled"><a>{{ label }}</a></li></ul>'),

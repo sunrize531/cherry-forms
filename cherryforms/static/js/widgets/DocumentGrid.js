@@ -69,6 +69,7 @@ define(['underscore', 'backbone', 'handsontable', 'core',
         }),
 
         DocumentGridWidget = Widgets.DocumentGrid = Widget.extend({
+            className: 'chf-field-document-grid',
             FieldModel: DocumentGridField,
             template: _.template('<div class="control-group">' +
                 '<label>{{ label }}</label>' +

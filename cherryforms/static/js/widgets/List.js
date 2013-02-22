@@ -199,6 +199,7 @@ define(['underscore', 'backbone', 'core', 'widgets/Text', 'widgets/Select',
     });
 
     Widgets.List = Widget.extend({
+        className: 'chf-field-list',
         FieldModel: ListField,
         template: listWidgetTemplate,
 

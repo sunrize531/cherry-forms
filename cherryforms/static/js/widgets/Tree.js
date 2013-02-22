@@ -437,6 +437,7 @@ define(['underscore', 'backbone', 'core', 'utils',
                 '</ul>' +
             '</div>'),
             FieldModel: TreeField,
+            className: 'chf-field-tree',
 
             getTree: function () {
                 if (_.isUndefined(this._tree)) {

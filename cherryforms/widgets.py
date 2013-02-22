@@ -214,6 +214,11 @@ class PillsField(Field):
     field_class = 'chf-field-pills'
 
 
+class RadioGroup(Field):
+    widget = 'RadioGroup'
+    field_class = 'chf-field-buttons-group'
+
+
 class CheckBox(Field):
     widget = 'CheckBox'
     field_class = 'chf-field-checkbox'

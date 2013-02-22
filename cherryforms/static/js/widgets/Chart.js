@@ -35,6 +35,7 @@ define(['underscore', 'core',
                 '<div class="{{ chart_class }}"></div>' +
             '</div> '),
             FieldModel: ChartField,
+            className: 'chf-field-chart',
 
             $getChart: function () {
                 if (_.isUndefined(this.$chart)) {
