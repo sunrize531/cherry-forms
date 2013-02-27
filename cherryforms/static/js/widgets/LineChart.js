@@ -1,4 +1,5 @@
-define(['underscore', 'core', 'highcharts', 'widgets/Chart'], function (_, CherryForms, Highcharts) {
+define(['underscore', 'core', 'highcharts', 'highcharts-exporting',
+    'widgets/Chart'], function (_, CherryForms, Highcharts) {
     "use strict";
     var Widgets = CherryForms.Widgets,
         Fields = CherryForms.Fields,
@@ -10,13 +11,9 @@ define(['underscore', 'core', 'highcharts', 'widgets/Chart'], function (_, Cherr
         LineChartWidget = Widgets.LineChart = Widgets.Chart.extend({
             FieldModel: LineChartField,
 
-            renderChart: function () {
-                var chart = this.chart,
-                    $chart = this.$getChart(),
-                    data = this.model.get('data'),
-
-                    chartData, titles, categories, series, i,
-                    chartOptions;
+            getChartData: function () {
+                var data = this.model.get('data'),
+                    chartData, titles, categories, series, i;
 
                 titles = data[0];
                 categories = [];
@@ -47,15 +44,13 @@ define(['underscore', 'core', 'highcharts', 'widgets/Chart'], function (_, Cherr
                     }
                 });
 
+                return chartData;
+            },
 
-                if (!_.isUndefined(chart)) {
-                    chart.destroy();
-                    $chart.empty();
-                }
-
-                chartOptions = {
+            getChartOptions: function (container) {
+                return {
                     chart: {
-                        renderTo: $chart[0]
+                        renderTo: container
                     },
                     title: false,
                     subtitle: false,
@@ -68,8 +63,19 @@ define(['underscore', 'core', 'highcharts', 'widgets/Chart'], function (_, Cherr
                         x: -10, y: 50, borderWidth: 0
                     }
                 };
-                _.extend(chartOptions, this.options, chartData);
-                this.chart = new Highcharts.Chart(chartOptions);
+            },
+
+            renderChart: function () {
+                var chart = this.chart,
+                    $chart = this.$getChart();
+
+                if (!_.isUndefined(chart)) {
+                    chart.destroy();
+                    $chart.empty();
+                }
+
+                this.chart = new Highcharts.Chart(
+                    _.extend(this.getChartOptions($chart[0]), this.options, this.getChartData()));
             }
         });
     return CherryForms;

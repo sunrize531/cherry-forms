@@ -1,4 +1,5 @@
-define(['underscore', 'core', 'highcharts', 'widgets/Chart'], function (_, CherryForms, Highcharts) {
+define(['underscore', 'core', 'highcharts', 'highcharts-exporting',
+    'widgets/Chart'], function (_, CherryForms, Highcharts) {
     "use strict";
     var Widgets = CherryForms.Widgets,
         Fields = CherryForms.Fields,

@@ -11,6 +11,7 @@
                 'datepicker': 'libs/bootstrap-datepicker',
                 'moment': 'libs/moment.min',
                 'highcharts': 'libs/highcharts',
+                'highcharts-exporting': 'libs/highcharts-exporting',
 
                 'css': 'libs/require-css',
                 'less': 'libs/require-less',
@@ -47,7 +48,8 @@
                 },
                 'highcharts': {
                     exports: 'Highcharts'
-                }
+                },
+                'highcharts-exporting': ['highcharts']
             }
         },
         config = window.CherryFormsConfig;
