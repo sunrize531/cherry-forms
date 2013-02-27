@@ -465,6 +465,7 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                     }
                     data.append(field, value);
                 });
+                data.append('_action', this.get('_action'));
                 options = options || {};
                 _.defaults(options, {
                     url: window.location.href,
@@ -652,6 +653,7 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
             },
 
             onSubmit: function (response) {
+                console.log(response);
                 if (_.isObject(response)) {
                     if (response['refresh']) {
                         window.location.reload();
