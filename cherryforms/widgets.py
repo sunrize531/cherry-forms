@@ -262,3 +262,8 @@ class LineChart(Field):
 class PieChart(Field):
     widget = 'PieChart'
     field_class = 'chf-field-chart'
+
+
+class ColumnChart(Field):
+    widget = 'ColumnChart'
+    field_class = 'chf-field-chart'

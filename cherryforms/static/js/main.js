@@ -10,12 +10,13 @@
                 'handsontable': 'libs/jquery.handsontable',
                 'datepicker': 'libs/bootstrap-datepicker',
                 'moment': 'libs/moment.min',
+                'highcharts': 'libs/highcharts',
+                'highcharts-exporting': 'libs/highcharts-exporting',
 
                 'css': 'libs/require-css',
                 'less': 'libs/require-less',
                 'text': 'libs/require-text',
                 'async': 'libs/require-async',
-                'goog': 'libs/require-goog',
                 'propertyParser': 'libs/require-property-parser'
             },
             config: {
@@ -44,7 +45,11 @@
                 },
                 'moment': {
                     exports: 'moment'
-                }
+                },
+                'highcharts': {
+                    exports: 'Highcharts'
+                },
+                'highcharts-exporting': ['highcharts']
             }
         },
         config = window.CherryFormsConfig;

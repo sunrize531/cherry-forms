@@ -1,5 +1,4 @@
-define(['underscore', 'core',
-    'goog!visualization,1,packages:[corechart]'], function (_, CherryForms) {
+define(['underscore', 'core', 'less!chf-charts.less'], function (_, CherryForms) {
     "use strict";
 
     var Widgets = CherryForms.Widgets,
@@ -7,7 +6,6 @@ define(['underscore', 'core',
         Fields = CherryForms.Fields,
         Field = Fields.Field,
         Events = CherryForms.Events,
-        vis = google.visualization,
         DATA_UPDATE_EVENT = 'chart:data_update',
 
         ChartField = Fields.Chart = Field.extend({
@@ -19,12 +17,10 @@ define(['underscore', 'core',
 
             initialize: function () {
                 Field.prototype.initialize.apply(this, arguments);
-                this._onDataSet();
                 this.on('change:data', this._onDataSet, this);
             },
 
             _onDataSet: function () {
-                this.data = vis.arrayToDataTable(this.get('data'));
                 this.trigger(DATA_UPDATE_EVENT);
             }
         }),
@@ -39,32 +35,21 @@ define(['underscore', 'core',
 
             $getChart: function () {
                 if (_.isUndefined(this.$chart)) {
-                    this.$chart = this.$('.' + this.model.get('chart_class'))[0];
+                    this.$chart = this.$('.' + this.model.get('chart_class'));
                 }
                 return this.$chart;
             },
 
-            initChart: function () {
-                throw 'Implement it in subclass';
-            },
-
-            getChart: function () {
-                if (_.isUndefined(this._chart)) {
-                    this._chart = this.initChart();
-                }
-                return this._chart;
-            },
-
             render: function () {
                 Widget.prototype.render.apply(this, arguments);
-                this.refreshChart();
-                this.listenTo(this.model, DATA_UPDATE_EVENT, this.refreshChart);
-                this.listenTo(CherryForms, Events.TAB_SHOWN, this.refreshChart);
+                this.renderChart();
+                this.listenTo(this.model, 'change:data', this.renderChart);
+                this.listenTo(CherryForms, Events.TAB_SHOWN, this.renderChart);
                 return this;
             },
 
-            refreshChart: function () {
-                this.getChart().draw(this.model.data);
+            renderChart: function () {
+                throw 'Implement it in subclass';
             }
         });
 
