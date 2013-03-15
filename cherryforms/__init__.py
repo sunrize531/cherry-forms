@@ -1,4 +1,5 @@
-import os, inspect
+import inspect
+import os
 from collections import MutableMapping
 from copy import deepcopy
 from zlib import crc32
@@ -20,6 +21,7 @@ _DEFAULT_SETTINGS = {
     '_handlers': {},
     '_updated': True
 }
+
 
 class CherryFormsSettings(MutableMapping):
     def __init__(self, application):
@@ -43,6 +45,7 @@ class CherryFormsSettings(MutableMapping):
     def __len__(self):
         return len(self.settings)
 
+
 class CherryFormsURLSpec(URLSpec):
     def __init__(self, pattern, handler_class, kwargs=None, prefix=_DEFAULT):
         if prefix is _DEFAULT:
@@ -58,6 +61,7 @@ class CherryFormsURLSpec(URLSpec):
             return self.name == other
         else:
             return self.name == other.name
+
 
 class CherryTemplateLoader(BaseLoader):
     def __init__(self, path, **kwargs):

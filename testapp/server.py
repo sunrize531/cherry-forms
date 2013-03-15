@@ -1,10 +1,12 @@
 import logging
 from tornado.ioloop import IOLoop
 from tornado.web import Application, os
-from cherryforms import widgets
+#from cherryforms import widgets
 from cherryforms.handlers import CherryFormsHandler
 from cherrycommon.pathutils import norm_path
 from cherrycommon.timeutils import milliseconds
+
+import widgets
 
 __author__ = 'sunrize'
 
@@ -23,7 +25,10 @@ if __name__ == '__main__':
         (('^/test', TestHandler),),
         template_path=norm_path(os.curdir, 'templates'),
         ui_modules=widgets,
-        cherryforms={'static_handlers': True}
+        cherryforms={
+            'static_handlers': True,
+            'static_path': ['static']
+        }
     )
     app.listen(8000)
     IOLoop.instance().start()

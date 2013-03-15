@@ -52,8 +52,8 @@ class CherryStaticHandler(StaticFileHandler):
                 self.set_status(304)
                 return
 
-        with open(path, "rb") as file:
-            data = file.read()
+        with open(path, "rb") as f:
+            data = f.read()
             hasher = hashlib.sha1()
             hasher.update(data)
             self.set_header("Etag", '"%s"' % hasher.hexdigest())
