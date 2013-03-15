@@ -118,8 +118,9 @@ class JSLink(Link):
 class Button(UIModule):
     template = 'button.html'
 
-    def render(self, id, label=None, bootstrap_type=None, **kwargs):
-        return self.render_string(self.template, id=id, label=label or id, bootstrap_type=bootstrap_type, **kwargs)
+    def render(self, button_id, label=None, bootstrap_type=None, **kwargs):
+        return self.render_string(
+            self.template, id=button_id, label=label or button_id, bootstrap_type=bootstrap_type, **kwargs)
 
 
 class Field(CherryFormsModule):
@@ -139,7 +140,8 @@ class Field(CherryFormsModule):
 
     def embedded_javascript(self):
         class_name = self.__class__.__name__
-        return self.render_string('embedded_js.html',
+        return self.render_string(
+            'embedded_js.html',
             modules=['core'] + list(self._required_modules),
             class_name=class_name,
             fields=self._fields.pop(class_name, {}),
