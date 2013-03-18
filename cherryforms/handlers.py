@@ -52,8 +52,8 @@ class CherryStaticHandler(StaticFileHandler):
                 self.set_status(304)
                 return
 
-        with open(path, "rb") as file:
-            data = file.read()
+        with open(path, "rb") as f:
+            data = f.read()
             hasher = hashlib.sha1()
             hasher.update(data)
             self.set_header("Etag", '"%s"' % hasher.hexdigest())
@@ -72,6 +72,13 @@ class CherryFormsHandler(RequestHandler):
         except (TypeError, ValueError):
             return argument
 
+    @property
+    def cherryforms_settings(self):
+        return CherryFormsSettings(self.application)
+
+    def get_template_path(self):
+        return 'cherryforms'
+
     def create_template_loader(self, template_path):
         settings = self.application.settings
         if "template_loader" in settings:
@@ -83,8 +90,14 @@ class CherryFormsHandler(RequestHandler):
             # to only pass this kwarg if the user asked for it.
             kwargs["autoescape"] = settings["autoescape"]
 
-        cherryforms_settings = CherryFormsSettings(self.application)
-        return CherryTemplateLoader([template_path] + cherryforms_settings['template_path'], **kwargs)
+        path = []
+        try:
+            path.append(settings['template_path'])
+        except KeyError:
+            pass
+
+        path += self.cherryforms_settings['template_path']
+        return CherryTemplateLoader(path, **kwargs)
 
     def pop_argument(self, name, default=RequestHandler._ARG_DEFAULT, strip=True):
         argument = self.get_argument(name, default, strip)
@@ -116,3 +129,6 @@ class CherryFormsHandler(RequestHandler):
         if target:
             redirect['target'] = target
         self.write(redirect)
+
+    def post(self, *args, **kwargs):
+        getattr(self, '_action_{}'.format(self.action))()

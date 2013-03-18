@@ -140,11 +140,11 @@ define(['underscore', 'backbone', 'handsontable', 'core',
                 return this;
             },
 
-            copyButtonTemplate: '<a href="#" rel="{{ document_id }}" class="btn btn-mini">' +
+            copyButtonTemplate: '<a href="#" rel="{{ document_id }}" class="">' +
                 '<i class="icon-copy"></i></a>',
-            trashButtonTemplate: '<a href="#" rel="{{ document_id }}" class="btn btn-mini btn-danger">' +
+            trashButtonTemplate: '<a href="#" rel="{{ document_id }}" class="">' +
                 '<i class="icon-trash"></i></a>',
-            controlsTemplate: '<div class="btn-group">{{ controls }}</div>',
+            controlsTemplate: '<div class="">{{ controls }}</div>',
 
             _renderGrid: function () {
                 var canCopy = this.model.get('can_copy'),
@@ -169,7 +169,10 @@ define(['underscore', 'backbone', 'handsontable', 'core',
                     data: this.model.gridData(),
                     startRows: 20,
                     colHeaders: this.gridHeaders(controlsEnabled),
-                    columns: this.gridColumns(controlsEnabled)
+                    columns: this.gridColumns(controlsEnabled),
+                    scrollH: 'auto',
+                    scrollW: 'auto',
+                    stretchH: 'all'
                 });
                 return this;
             },

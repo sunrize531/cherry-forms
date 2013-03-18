@@ -53,31 +53,34 @@ class CherryFormsModule(UIModule):
         """
         host = self.handler.request.host
         specs = []
-        prefix = self.settings['prefix']
-        if self.settings['static_handlers']:
-            if self.settings['static_path']:
-                pass
-            spec = CherryFormsURLSpec('(.*)', CherryStaticHandler, prefix=prefix)
-            if not self._is_registered(host, spec):
-                specs.append(spec)
 
+        handlers_prefix = self.settings['handlers_prefix']
         if self.handlers and self.settings['widget_handlers']:
             for spec in self.handlers:
                 if isinstance(spec, (tuple, list)):
                     l = len(spec)
                     if 2 <= l < 4:
-                        spec = CherryFormsURLSpec(*spec, prefix=prefix)
+                        spec = CherryFormsURLSpec(*spec, prefix=handlers_prefix)
                     elif l == 4:
                         spec = CherryFormsURLSpec(*spec)
                     else:
                         raise AttributeError('Invalid spec')
                 elif isinstance(spec, dict):
                     spec = deepcopy(spec)
-                    spec.setdefault('prefix', prefix)
+                    spec.setdefault('prefix', handlers_prefix)
                     spec = CherryFormsURLSpec(**spec)
 
                 if not self._is_registered(host, spec):
                     specs.append(spec)
+
+        static_prefix = self.settings['static_prefix']
+        if self.settings['static_handlers']:
+            if self.settings['static_path']:
+                pass
+            spec = CherryFormsURLSpec('(.*)', CherryStaticHandler, prefix=static_prefix, kwargs={
+                'path': self.settings['static_path']})
+            if not self._is_registered(host, spec):
+                specs.append(spec)
 
         self._add_handlers(specs)
 
@@ -87,7 +90,7 @@ class CherryFormsModule(UIModule):
         if re.match('https?://', url) or url.startswith('/'):
             prefix = ''
         else:
-            prefix = prefix or self.settings['prefix']
+            prefix = prefix or self.settings['static_prefix']
         return self.url_pattern.format(prefix=prefix, url=url, **kwargs)
 
 
@@ -118,8 +121,9 @@ class JSLink(Link):
 class Button(UIModule):
     template = 'button.html'
 
-    def render(self, id, label=None, bootstrap_type=None, **kwargs):
-        return self.render_string(self.template, id=id, label=label or id, bootstrap_type=bootstrap_type, **kwargs)
+    def render(self, button_id, label=None, bootstrap_type=None, **kwargs):
+        return self.render_string(
+            self.template, id=button_id, label=label or button_id, bootstrap_type=bootstrap_type, **kwargs)
 
 
 class Field(CherryFormsModule):
@@ -139,7 +143,8 @@ class Field(CherryFormsModule):
 
     def embedded_javascript(self):
         class_name = self.__class__.__name__
-        return self.render_string('embedded_js.html',
+        return self.render_string(
+            'embedded_js.html',
             modules=['core'] + list(self._required_modules),
             class_name=class_name,
             fields=self._fields.pop(class_name, {}),
