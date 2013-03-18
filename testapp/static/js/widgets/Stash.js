@@ -71,7 +71,7 @@ define(['underscore', 'backbone', 'core', 'utils',
 
         DocumentsCollection = Models.DocumentsCollection,
         ResourcesCollection = DocumentsCollection.extend({
-            url: 'widgets/resources/',
+            url: 'cherryforms/resources',
             model: ResourceType,
 
             initialize: function () {

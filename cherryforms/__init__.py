@@ -15,7 +15,8 @@ _DEFAULT = object()
 _DEFAULT_SETTINGS = {
     'static_handlers': False,
     'widget_handlers': True,
-    'prefix': '/cherryforms/',
+    'static_prefix': '/cherryforms/',
+    'handlers_prefix': '/chf-handlers/',
     'static_path': [],
     'template_path': [],
     '_handlers': {},
