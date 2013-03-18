@@ -1,6 +1,7 @@
 import logging
 from tornado.ioloop import IOLoop
 from tornado.web import Application, os
+from cherrycommon.mathutils import random_id
 from cherryforms.handlers import CherryFormsHandler
 from cherrycommon.pathutils import norm_path
 from cherrycommon.timeutils import milliseconds
@@ -12,8 +13,14 @@ __author__ = 'sunrize'
 
 class TestHandler(CherryFormsHandler):
     def get(self, *args, **kwargs):
-        self.render('test.html',
-                    time=milliseconds() - milliseconds(days=10))
+        self.render(
+            'test.html',
+            time=milliseconds() - milliseconds(days=10),
+            grid_data=[{
+                '_id': 'document_{}'.format(i),
+                'int_field': i,
+                'text_field': random_id()
+            } for i in range(0, 1000)])
 
     def post(self, *args, **kwargs):
         logging.debug(self.arguments)

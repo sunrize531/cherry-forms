@@ -1,9 +1,22 @@
+@import "bootstrap-variables";
+
 .chf-field-document-grid {
   .chf-controls {
     text-align: center;
-    .btn-group {
+    a {
+      text-decoration: none;
       display: inline-block;
-      margin: 2px;
+      margin: 0px 5px;
+
+      .icon-trash {
+        color: @red;
+      }
     }
+  }
+
+  .chf-grid {
+    width: 100%;
+    height: 400px;
+    overflow: auto;
   }
 }
