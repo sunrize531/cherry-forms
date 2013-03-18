@@ -57,7 +57,8 @@ class CherryFormsModule(UIModule):
         if self.settings['static_handlers']:
             if self.settings['static_path']:
                 pass
-            spec = CherryFormsURLSpec('(.*)', CherryStaticHandler, prefix=prefix)
+            spec = CherryFormsURLSpec('(.*)', CherryStaticHandler, prefix=prefix, kwargs={
+                'path': self.settings['static_path']})
             if not self._is_registered(host, spec):
                 specs.append(spec)
 

@@ -1,7 +1,6 @@
 import logging
 from tornado.ioloop import IOLoop
 from tornado.web import Application, os
-#from cherryforms import widgets
 from cherryforms.handlers import CherryFormsHandler
 from cherrycommon.pathutils import norm_path
 from cherrycommon.timeutils import milliseconds
@@ -27,7 +26,7 @@ if __name__ == '__main__':
         ui_modules=widgets,
         cherryforms={
             'static_handlers': True,
-            'static_path': ['static']
+            'static_path': [norm_path('static')]
         }
     )
     app.listen(8000)

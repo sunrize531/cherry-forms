@@ -8,6 +8,7 @@
 <li><a href="#tree">Tree</a></li>
 <li><a href="#charts">Charts</a></li>
 <li><a href="#grid">Document grid</a></li>
+<li><a href="#extended">Extended fields</a></li>
 {% end %}
 {% block form %}
 <div class="tab-content">
@@ -98,6 +99,14 @@
         ['Sleep',    7]
     ]) %}
 
+</div>
+<div id="extended">
+{% module StashField('stash_field', label='Stash:', value={
+        'coins': 120,
+        'wood': 5,
+        'xp': 30,
+        'level': 1
+    }) %}
 </div>
 </div>
 {% end %}

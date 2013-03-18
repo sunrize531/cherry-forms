@@ -1,6 +1,6 @@
 define(['underscore', 'backbone', 'core', 'utils',
-    'widgets/text',
-    'less!/static/admin/css/chf-stash.less'], function (_, Backbone, CherryForms, Utils) {
+    'widgets/Text',
+    'less!chf-stash.less'], function (_, Backbone, CherryForms, Utils) {
     "use strict";
     var Models = CherryForms.Models,
         Schema = Models.Schema,
@@ -71,7 +71,7 @@ define(['underscore', 'backbone', 'core', 'utils',
 
         DocumentsCollection = Models.DocumentsCollection,
         ResourcesCollection = DocumentsCollection.extend({
-            url: '/widgets/resources/',
+            url: 'widgets/resources/',
             model: ResourceType,
 
             initialize: function () {
@@ -207,7 +207,8 @@ define(['underscore', 'backbone', 'core', 'utils',
                     'create_class': 'chf-stash-create',
                     'item_class': 'chf-field-item',
                     'clear_button': 'chf-btn-clear',
-                    'add_button': 'chf-btn-add'
+                    'add_button': 'chf-btn-add',
+                    'resources_url': '/widgets/resources'
                 }));
             },
 

@@ -1,5 +1,5 @@
 from tornado.web import RequestHandler
-from cherryforms import widgets
+from cherryforms.widgets import *
 
 
 class ResourceDumper(RequestHandler):
@@ -12,7 +12,7 @@ class ResourceDumper(RequestHandler):
         ])
 
 
-class StashField(widgets.Field):
+class StashField(Field):
     widget = 'Stash'
     field_class = 'chf-field-stash'
-    _handlers = ('\/widgets\/resources\/', ResourceDumper),
+    handlers = ('\/widgets\/resources\/', ResourceDumper),
