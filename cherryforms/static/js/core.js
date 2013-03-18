@@ -681,15 +681,6 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
         schema = CherryForms.schema = new Schema();
 
     Templates.Label = _.template('<label for="{{ input_id }}" title="{{ label }}">{{ label }}</label>');
-    Templates.Hidden = _.template('<input type="hidden" id="{{ input_id }}" value="{{ value }}">');
-
-    Fields.Hidden = Field.extend({
-    });
-
-    Widgets.Hidden = Widget.extend({
-        template: Templates.Hidden,
-        FieldModel: Fields.Hidden
-    });
 
     return CherryForms;
 });
