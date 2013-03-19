@@ -23,7 +23,7 @@ setup(
     install_requires=[
         "tornado >= 2.4",
         "pymongo >= 2.3",
-        'cherry-common'
+        'cherry-common >= 0.4dev'
     ],
     dependency_links = [
         "git+git://gitolite@jira.wysegames.com/cherry_common.git"
