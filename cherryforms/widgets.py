@@ -5,8 +5,8 @@ from zlib import crc32
 from threading import Lock
 from tornado.web import UIModule, URLSpec
 from tornado.template import Loader
-from cherryforms import CherryFormsURLSpec, CherryFormsSettings, _DEFAULT
-from cherryforms.handlers import CherryStaticHandler
+from cherryforms import CherryFormsSettings, _DEFAULT
+from cherryforms.handlers import CherryStaticHandler, CherryFormsURLSpec
 
 _templates_loader = Loader(root_directory=path.join(curdir, 'templates'))
 _registered_handlers = {}
@@ -46,6 +46,7 @@ class CherryFormsModule(UIModule):
         registered_handlers = self.settings['_handlers'].setdefault('host', set())
         return spec.name in registered_handlers
 
+    # TODO: find a way to install handlers before request hit.
     def register_handlers(self):
         """This function will add cherryforms handlers in current application. If application uses virtual hosts,
         and no wildcard host handlers configured yet, method will try to add cherryforms handlers
