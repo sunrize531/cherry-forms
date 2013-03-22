@@ -3,8 +3,7 @@ from tornado.web import RequestHandler
 
 from cherrycommon.pathutils import norm_path
 from cherrycommon.handlers import CherryStaticHandler as _CherryStaticHandler
-from cherrycommon.handlers import CherryTemplateLoader as _CherryTemplateLoader
-from cherrycommon.handlers import CherryURLSpec
+from cherrycommon.handlers import CherryTemplateLoader, CherryURLSpec
 
 from cherryforms import module_path, CherryFormsSettings, _DEFAULT, _DEFAULT_SETTINGS
 
@@ -16,7 +15,7 @@ class FormsURLSpec(CherryURLSpec):
         super(FormsURLSpec, self).__init__(pattern, handler_class, kwargs, prefix)
 
 
-class FormsTemplateLoader(_CherryTemplateLoader):
+class FormsTemplateLoader(CherryTemplateLoader):
     def __init__(self, path, **kwargs):
         super(FormsTemplateLoader, self).__init__(path, **kwargs)
         self.path.append(norm_path(module_path, 'templates'))
