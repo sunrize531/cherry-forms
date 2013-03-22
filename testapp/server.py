@@ -2,7 +2,7 @@ import logging
 from tornado.ioloop import IOLoop
 from tornado.web import Application, os
 from cherrycommon.mathutils import random_id
-from cherryforms.handlers import CherryFormsHandler
+from cherryforms.handlers import FormHandler
 from cherrycommon.pathutils import norm_path
 from cherrycommon.timeutils import milliseconds
 
@@ -11,7 +11,7 @@ import widgets
 __author__ = 'sunrize'
 
 
-class TestHandler(CherryFormsHandler):
+class TestHandler(FormHandler):
     def get(self, *args, **kwargs):
         self.render(
             'test.html',

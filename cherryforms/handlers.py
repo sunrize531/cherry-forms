@@ -9,28 +9,28 @@ from cherrycommon.handlers import CherryURLSpec
 from cherryforms import module_path, CherryFormsSettings, _DEFAULT, _DEFAULT_SETTINGS
 
 
-class CherryFormsURLSpec(CherryURLSpec):
+class FormsURLSpec(CherryURLSpec):
     def __init__(self, pattern, handler_class, kwargs=None, prefix=_DEFAULT):
         if prefix is _DEFAULT:
             prefix = _DEFAULT_SETTINGS['prefix']
-        super(CherryFormsURLSpec, self).__init__(pattern, handler_class, kwargs, prefix)
+        super(FormsURLSpec, self).__init__(pattern, handler_class, kwargs, prefix)
 
 
-class CherryTemplateLoader(_CherryTemplateLoader):
+class FormsTemplateLoader(_CherryTemplateLoader):
     def __init__(self, path, **kwargs):
-        super(CherryTemplateLoader, self).__init__(path, **kwargs)
+        super(FormsTemplateLoader, self).__init__(path, **kwargs)
         self.path.append(norm_path(module_path, 'templates'))
 
 
-class CherryStaticHandler(_CherryStaticHandler):
+class FormsStaticHandler(_CherryStaticHandler):
     def initialize(self, path=(), default_filename=None):
-        super(CherryStaticHandler, self).initialize(path, default_filename)
+        super(FormsStaticHandler, self).initialize(path, default_filename)
         self.path.append(norm_path(module_path, 'static'))
 
 
-class CherryFormsHandler(RequestHandler):
+class FormHandler(RequestHandler):
     def get_argument(self, name, default=RequestHandler._ARG_DEFAULT, strip=True):
-        argument = super(CherryFormsHandler, self).get_argument(name, default, strip)
+        argument = super(FormHandler, self).get_argument(name, default, strip)
         try:
             return loads(argument)
         except (TypeError, ValueError):
@@ -61,7 +61,7 @@ class CherryFormsHandler(RequestHandler):
             pass
 
         path += self.cherryforms_settings['template_path']
-        return CherryTemplateLoader(path, **kwargs)
+        return FormsTemplateLoader(path, **kwargs)
 
     def pop_argument(self, name, default=RequestHandler._ARG_DEFAULT, strip=True):
         argument = self.get_argument(name, default, strip)
@@ -96,3 +96,6 @@ class CherryFormsHandler(RequestHandler):
 
     def post(self, *args, **kwargs):
         getattr(self, '_action_{}'.format(self.action))()
+
+# TODO: fix in applications and remove
+CherryFormsHandler = FormHandler

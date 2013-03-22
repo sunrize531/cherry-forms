@@ -6,7 +6,7 @@ from threading import Lock
 from tornado.web import UIModule, URLSpec
 from tornado.template import Loader
 from cherryforms import CherryFormsSettings, _DEFAULT
-from cherryforms.handlers import CherryStaticHandler, CherryFormsURLSpec
+from cherryforms.handlers import FormsStaticHandler, FormsURLSpec
 
 _templates_loader = Loader(root_directory=path.join(curdir, 'templates'))
 _registered_handlers = {}
@@ -61,15 +61,15 @@ class CherryFormsModule(UIModule):
                 if isinstance(spec, (tuple, list)):
                     l = len(spec)
                     if 2 <= l < 4:
-                        spec = CherryFormsURLSpec(*spec, prefix=handlers_prefix)
+                        spec = FormsURLSpec(*spec, prefix=handlers_prefix)
                     elif l == 4:
-                        spec = CherryFormsURLSpec(*spec)
+                        spec = FormsURLSpec(*spec)
                     else:
                         raise AttributeError('Invalid spec')
                 elif isinstance(spec, dict):
                     spec = deepcopy(spec)
                     spec.setdefault('prefix', handlers_prefix)
-                    spec = CherryFormsURLSpec(**spec)
+                    spec = FormsURLSpec(**spec)
 
                 if not self._is_registered(host, spec):
                     specs.append(spec)
@@ -78,7 +78,7 @@ class CherryFormsModule(UIModule):
         if self.settings['static_handlers']:
             if self.settings['static_path']:
                 pass
-            spec = CherryFormsURLSpec('(.*)', CherryStaticHandler, prefix=static_prefix, kwargs={
+            spec = FormsURLSpec('(.*)', FormsStaticHandler, prefix=static_prefix, kwargs={
                 'path': self.settings['static_path']})
             if not self._is_registered(host, spec):
                 specs.append(spec)
