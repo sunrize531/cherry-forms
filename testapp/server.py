@@ -23,7 +23,8 @@ class TestHandler(FormHandler):
             } for i in range(0, 1000)])
 
     def post(self, *args, **kwargs):
-        logging.debug(self.arguments)
+        print self.request
+        print tuple(self.arguments)
 
 
 if __name__ == '__main__':
