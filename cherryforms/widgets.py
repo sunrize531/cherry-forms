@@ -131,12 +131,13 @@ class Field(CherryFormsModule):
     template = 'field.html'
     widget = 'Field'
     field_class = ''
+    handlers = ()
+
     _javascript_files = ()
     _required_modules = ()
     _embedded_javascript = ''
     _css_files = ()
     _less_files = ()
-    handlers = ()
     _fields = {}
 
     def javascript_files(self):
