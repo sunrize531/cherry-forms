@@ -14,7 +14,7 @@ _registered_handlers = {}
 
 class CherryFormsModule(UIModule):
     template = ''
-    handlers = ()
+    handlers = {}
 
     def __init__(self, handler):
         super(CherryFormsModule, self).__init__(handler)
@@ -93,6 +93,19 @@ class CherryFormsModule(UIModule):
         else:
             prefix = prefix or self.settings['static_prefix']
         return self.url_pattern.format(prefix=prefix, url=url, **kwargs)
+
+    @classmethod
+    def widget_handler(cls, name, pattern, **kwargs):
+        """Decorate resources collection handler to register handler for specified widget.
+
+        :param pattern: Pattern to be matched. As always, groups will be passed to handler's entry point as positional
+                        and named arguments.
+        :type pattern: basestring
+        """
+        def register_handler(handler):
+            cls.handlers[name] = FormsURLSpec(pattern, handler, kwargs, name=name)
+            return handler
+        return register_handler
 
 
 class Link(CherryFormsModule):

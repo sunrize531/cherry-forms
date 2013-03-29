@@ -6,13 +6,15 @@ from cherrycommon.handlers import CherryStaticHandler as _CherryStaticHandler
 from cherrycommon.handlers import CherryTemplateLoader, CherryURLSpec
 
 from cherryforms import module_path, CherryFormsSettings, _DEFAULT, _DEFAULT_SETTINGS
+from cherryforms.widgets import CherryFormsModule
 
 
 class FormsURLSpec(CherryURLSpec):
-    def __init__(self, pattern, handler_class, kwargs=None, prefix=_DEFAULT):
+    def __init__(self, pattern, handler_class, kwargs=None, name=None, prefix=_DEFAULT):
         if prefix is _DEFAULT:
             prefix = _DEFAULT_SETTINGS['prefix']
-        super(FormsURLSpec, self).__init__(pattern, handler_class, kwargs, prefix)
+        super(FormsURLSpec, self).__init__(
+            pattern, handler_class, kwargs=kwargs, name=name, prefix=prefix)
 
 
 class FormsTemplateLoader(CherryTemplateLoader):
@@ -98,3 +100,18 @@ class FormHandler(RequestHandler):
 
 # TODO: fix in applications and remove
 CherryFormsHandler = FormHandler
+
+
+def get_widget_handlers(include_static=True):
+    _seen = set()
+    specs = []
+    for sub in CherryFormsModule.__subclasses__():
+        if sub in _seen:
+            continue
+        for spec in sub.handlers.iteritems():
+            specs.append(spec)
+    return specs
+
+
+def register_widget_handler(application, url_spec):
+    pass
