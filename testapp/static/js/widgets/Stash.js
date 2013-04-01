@@ -346,7 +346,7 @@ define(['underscore', 'backbone', 'core', 'utils',
         _onSchemaReset: function () {
             this.$editor
                 .empty()
-                .append(this.schema.map(this._renderItemField, this));
+                .append(this.model.schema.map(this._renderItemField, this));
         }
     });
 
