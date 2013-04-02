@@ -23,7 +23,7 @@ class TestHandler(CherryFormsHandler):
             } for i in range(0, 1000)])
 
     def post(self, *args, **kwargs):
-        logging.debug(self.arguments)
+        print dict(self.arguments)
 
 
 if __name__ == '__main__':
