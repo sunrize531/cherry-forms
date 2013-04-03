@@ -3,10 +3,10 @@ from tornado.web import RequestHandler
 
 from cherrycommon.pathutils import norm_path
 from cherrycommon.handlers import CherryStaticHandler as _CherryStaticHandler
-from cherrycommon.handlers import CherryTemplateLoader, CherryURLSpec
+from cherrycommon.handlers import CherryTemplateLoader, CherryURLSpec, CherryRequestHandler
 
 from cherryforms import module_path, CherryFormsSettings, _DEFAULT, _DEFAULT_SETTINGS
-from cherryforms.widgets import CherryFormsModule
+# from cherryforms.widgets import CherryFormsModule
 
 
 class FormsURLSpec(CherryURLSpec):
@@ -29,40 +29,25 @@ class FormsStaticHandler(_CherryStaticHandler):
         self.path.append(norm_path(module_path, 'static'))
 
 
-class FormHandler(RequestHandler):
+_module_templates_path = norm_path(module_path, 'templates')
+
+
+class FormHandler(CherryRequestHandler):
+    @property
+    def cherryforms_settings(self):
+        return CherryFormsSettings(self.application)
+
+    def initialize(self, templates_path=(), **kwargs):
+        super(FormHandler, self).initialize(templates_path=templates_path, **kwargs)
+        self.templates_path += self.cherryforms_settings['template_path']
+        self.templates_path.append(_module_templates_path)
+
     def get_argument(self, name, default=RequestHandler._ARG_DEFAULT, strip=True):
         argument = super(FormHandler, self).get_argument(name, default, strip)
         try:
             return loads(argument)
         except (TypeError, ValueError):
             return argument
-
-    @property
-    def cherryforms_settings(self):
-        return CherryFormsSettings(self.application)
-
-    def get_template_path(self):
-        return 'cherryforms'
-
-    def create_template_loader(self, template_path):
-        settings = self.application.settings
-        if "template_loader" in settings:
-            return settings["template_loader"]
-
-        kwargs = {}
-        if "autoescape" in settings:
-            # autoescape=None means "no escaping", so we have to be sure
-            # to only pass this kwarg if the user asked for it.
-            kwargs["autoescape"] = settings["autoescape"]
-
-        path = []
-        try:
-            path.append(settings['template_path'])
-        except KeyError:
-            pass
-
-        path += self.cherryforms_settings['template_path']
-        return FormsTemplateLoader(path, **kwargs)
 
     def pop_argument(self, name, default=RequestHandler._ARG_DEFAULT, strip=True):
         argument = self.get_argument(name, default, strip)
@@ -102,15 +87,15 @@ class FormHandler(RequestHandler):
 CherryFormsHandler = FormHandler
 
 
-def get_widget_handlers(include_static=True):
-    _seen = set()
-    specs = []
-    for sub in CherryFormsModule.__subclasses__():
-        if sub in _seen:
-            continue
-        for spec in sub.handlers.iteritems():
-            specs.append(spec)
-    return specs
+# def get_widget_handlers(include_static=True):
+#     _seen = set()
+#     specs = []
+#     for sub in CherryFormsModule.__subclasses__():
+#         if sub in _seen:
+#             continue
+#         for spec in sub.handlers.iteritems():
+#             specs.append(spec)
+#     return specs
 
 
 def register_widget_handler(application, url_spec):
