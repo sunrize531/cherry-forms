@@ -66,6 +66,3 @@ class FormHandler(CherryRequestHandler):
 
     def post(self, *args, **kwargs):
         getattr(self, '_action_{}'.format(self.action))()
-
-# TODO: fix in applications and remove
-CherryFormsHandler = FormHandler
