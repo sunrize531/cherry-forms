@@ -7,6 +7,7 @@ from cherrycommon.pathutils import norm_path
 from cherrycommon.timeutils import milliseconds
 
 import widgets
+from widgets import get_widget_handlers
 
 __author__ = 'sunrize'
 
@@ -28,12 +29,20 @@ class TestHandler(FormHandler):
 
 
 if __name__ == '__main__':
+    handlers = get_widget_handlers(
+        templates_path=[norm_path('templates')],
+        static_path=[norm_path('static')])
+    handlers += ('^/test', TestHandler),
+
+    print handlers
+
     app = Application(
-        (('^/test', TestHandler),),
+        handlers,
         template_path=norm_path(os.curdir, 'templates'),
         ui_modules=widgets,
         cherryforms={
-            'static_handlers': True,
+            'widget_handlers': False,
+            'static_handlers': False,
             'static_path': [norm_path('static')]
         }
     )

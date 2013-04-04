@@ -5,8 +5,9 @@ from zlib import crc32
 from threading import Lock
 from tornado.web import UIModule, URLSpec
 from tornado.template import Loader
+from cherrycommon.handlers import CherryURLSpec
 from cherryforms import CherryFormsSettings, _DEFAULT
-from cherryforms.handlers import FormsStaticHandler, FormsURLSpec
+from cherryforms.handlers import FormsStaticHandler
 
 _templates_loader = Loader(root_directory=path.join(curdir, 'templates'))
 _registered_handlers = {}
@@ -18,72 +19,8 @@ class CherryFormsModule(UIModule):
 
     def __init__(self, handler):
         super(CherryFormsModule, self).__init__(handler)
-
         #Get cherryforms settings for current application
         self.settings = CherryFormsSettings(self.handler.application)
-
-        #Register static and required handlers if any.
-        self.register_handlers()
-
-    @staticmethod
-    def _add_handler(handlers_list, spec):
-        handlers_list.append(URLSpec(*spec))
-
-    def _add_handlers(self, specs):
-        app_handlers = self.handler.application.handlers
-        last_handlers = app_handlers[-1]
-        last_host = last_handlers[0]
-        if last_host == '.*$':
-            lists_to_add = [last_handlers[1]]
-        else:
-            lists_to_add = [handlers[1] for handlers in app_handlers]
-        for spec in specs:
-            for handlers_list in lists_to_add:
-                if spec not in handlers_list:
-                    handlers_list.append(spec)
-
-    def _is_registered(self, host, spec):
-        registered_handlers = self.settings['_handlers'].setdefault('host', set())
-        return spec.name in registered_handlers
-
-    # TODO: find a way to install handlers before request hit.
-    def register_handlers(self):
-        """This function will add cherryforms handlers in current application. If application uses virtual hosts,
-        and no wildcard host handlers configured yet, method will try to add cherryforms handlers
-        in all configured virtual hosts.
-        """
-        host = self.handler.request.host
-        specs = []
-
-        handlers_prefix = self.settings['handlers_prefix']
-        if self.handlers and self.settings['widget_handlers']:
-            for spec in self.handlers:
-                if isinstance(spec, (tuple, list)):
-                    l = len(spec)
-                    if 2 <= l < 4:
-                        spec = FormsURLSpec(*spec, prefix=handlers_prefix)
-                    elif l == 4:
-                        spec = FormsURLSpec(*spec)
-                    else:
-                        raise AttributeError('Invalid spec')
-                elif isinstance(spec, dict):
-                    spec = deepcopy(spec)
-                    spec.setdefault('prefix', handlers_prefix)
-                    spec = FormsURLSpec(**spec)
-
-                if not self._is_registered(host, spec):
-                    specs.append(spec)
-
-        static_prefix = self.settings['static_prefix']
-        if self.settings['static_handlers']:
-            if self.settings['static_path']:
-                pass
-            spec = FormsURLSpec('(.*)', FormsStaticHandler, prefix=static_prefix, kwargs={
-                'path': self.settings['static_path']})
-            if not self._is_registered(host, spec):
-                specs.append(spec)
-
-        self._add_handlers(specs)
 
     url_pattern = '{prefix}{url}'
 
@@ -96,14 +33,14 @@ class CherryFormsModule(UIModule):
 
     @classmethod
     def widget_handler(cls, name, pattern, **kwargs):
-        """Decorate resources collection handler to register handler for specified widget.
+        """Decorate handler to register it for specified widget.
 
         :param pattern: Pattern to be matched. As always, groups will be passed to handler's entry point as positional
                         and named arguments.
         :type pattern: basestring
         """
         def register_handler(handler):
-            cls.handlers[name] = FormsURLSpec(pattern, handler, kwargs, name=name)
+            cls.handlers[name] = CherryURLSpec(pattern, handler, kwargs, name=name)
             return handler
         return register_handler
 
@@ -144,7 +81,6 @@ class Field(CherryFormsModule):
     template = 'field.html'
     widget = 'Field'
     field_class = ''
-    handlers = ()
 
     _javascript_files = ()
     _required_modules = ()
@@ -287,3 +223,25 @@ class PieChart(Field):
 class ColumnChart(Field):
     widget = 'ColumnChart'
     field_class = 'chf-field-chart'
+
+
+def get_widget_handlers(templates_path=(), static_path=(), no_static=False, **kwargs):
+    _seen = set()
+    specs = []
+    subclasses_queue = list(CherryFormsModule.__subclasses__())
+    while subclasses_queue:
+        sub = subclasses_queue.pop(0)
+        if sub in _seen:
+            continue
+        print sub
+        subclasses_queue += list(sub.__subclasses__())
+        for spec in sub.handlers.itervalues():
+            specs.append(spec)
+
+    if not no_static:
+        specs.append(('/cherryforms/(.*)', FormsStaticHandler, {'path': static_path}))
+    return specs
+
+
+def register_widget_handler(application, url_spec):
+    pass

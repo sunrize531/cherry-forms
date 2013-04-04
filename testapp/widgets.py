@@ -1,9 +1,9 @@
-
 from tornado.web import RequestHandler
-from cherryforms.widgets import *
+from cherryforms.extra import *
 from cherrycommon.dictutils import encode_data, JSON
 
 
+@StashField.widget_handler('resources', r'cherryforms\/resources\/')
 class ResourceDumper(RequestHandler):
     def get(self, *args, **kwargs):
         self.write(encode_data([
@@ -12,9 +12,3 @@ class ResourceDumper(RequestHandler):
             {'_id': 'DIAMONDS'},
             {'_id': 'PRANA'}
         ], JSON))
-
-
-class StashField(Field):
-    widget = 'Stash'
-    field_class = 'chf-field-stash'
-    handlers = ('resources', ResourceDumper),
