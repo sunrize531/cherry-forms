@@ -39,11 +39,12 @@
 </div>
 <div id="document">
 {% module DocumentField('doc', label='Embedded document:',
-    value={'text_field': 'Some string here', 'int_field': 5, 'list_field': [2, 3]},
+    value={'text_field': 'Some string here', 'int_field': 5, 'list_field': [2, 3], 'delta': 1000},
     schema=[
         {'widget': 'Text', 'field': 'text_field'},
         {'widget': 'Number', 'field': 'int_field'},
-        {'widget': 'List', 'field': 'list_field', 'choices': [1, 2, 3]}
+        {'widget': 'List', 'field': 'list_field', 'choices': [1, 2, 3]},
+        {'widget': 'TimeDelta', 'field': 'delta'}
     ]) %}
 {% module DocumentListField('doc_list', label='Embedded document list:',
     value=[
