@@ -2,16 +2,17 @@ import logging
 from tornado.ioloop import IOLoop
 from tornado.web import Application, os
 from cherrycommon.mathutils import random_id
-from cherryforms.handlers import CherryFormsHandler
+from cherryforms.handlers import FormHandler
 from cherrycommon.pathutils import norm_path
 from cherrycommon.timeutils import milliseconds
 
 import widgets
+from widgets import get_widget_handlers
 
 __author__ = 'sunrize'
 
 
-class TestHandler(CherryFormsHandler):
+class TestHandler(FormHandler):
     def get(self, *args, **kwargs):
         self.render(
             'test.html',
@@ -23,16 +24,25 @@ class TestHandler(CherryFormsHandler):
             } for i in range(0, 1000)])
 
     def post(self, *args, **kwargs):
-        print dict(self.arguments)
+        print self.request
+        print tuple(self.arguments)
 
 
 if __name__ == '__main__':
+    handlers = get_widget_handlers(
+        templates_path=[norm_path('templates')],
+        static_path=[norm_path('static')])
+    handlers += ('^/test', TestHandler),
+
+    print handlers
+
     app = Application(
-        (('^/test', TestHandler),),
+        handlers,
         template_path=norm_path(os.curdir, 'templates'),
         ui_modules=widgets,
         cherryforms={
-            'static_handlers': True,
+            'widget_handlers': False,
+            'static_handlers': False,
             'static_path': [norm_path('static')]
         }
     )

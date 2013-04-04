@@ -2,11 +2,6 @@ import inspect
 import os
 from collections import MutableMapping
 from copy import deepcopy
-from zlib import crc32
-from tornado.template import BaseLoader, Template
-from tornado.web import URLSpec
-
-from cherrycommon.pathutils import norm_path, file_path
 
 
 module_path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -45,34 +40,3 @@ class CherryFormsSettings(MutableMapping):
 
     def __len__(self):
         return len(self.settings)
-
-
-class CherryFormsURLSpec(URLSpec):
-    def __init__(self, pattern, handler_class, kwargs=None, prefix=_DEFAULT):
-        if prefix is _DEFAULT:
-            prefix = _DEFAULT_SETTINGS['prefix']
-        if not prefix.startswith('^'):
-            prefix = '^' + prefix
-        pattern = '{}{}'.format(prefix, pattern)
-        name = 'chf-{:05x}'.format(crc32(str(pattern)) & 0xfffff)
-        super(CherryFormsURLSpec, self).__init__(pattern, handler_class, kwargs, name)
-
-    def __eq__(self, other):
-        if isinstance(other, basestring):
-            return self.name == other
-        else:
-            return self.name == other.name
-
-
-class CherryTemplateLoader(BaseLoader):
-    def __init__(self, path, **kwargs):
-        super(CherryTemplateLoader, self).__init__(**kwargs)
-        self.path = map(norm_path, path)
-        self.path.append(norm_path(module_path, 'templates'))
-
-    def resolve_path(self, name, parent_path=None):
-        return file_path(name, self.path)
-
-    def _create_template(self, name):
-        with open(name, 'rb') as f:
-            return Template(f.read(), name=name, loader=self)

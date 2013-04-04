@@ -11,7 +11,7 @@ def get_file_list(path):
 
 setup(
     name='cherry-forms',
-    version='0.5.1a',
+    version='0.6',
     packages=['cherryforms',],
     package_data={'cherryforms': get_file_list('templates') + get_file_list('static')},
     url='',
@@ -23,7 +23,7 @@ setup(
     install_requires=[
         "tornado >= 2.4",
         "pymongo >= 2.3",
-        'cherry-common'
+        'cherry-common >= 0.5'
     ],
     dependency_links = [
         "git+git://gitolite@jira.wysegames.com/cherry_common.git"

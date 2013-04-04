@@ -7,6 +7,7 @@ define(['underscore', 'core'], function (_, CherryForms) {
 
         CheckBoxField = Fields.CheckBox = Fields.Field.extend({
             processValue: function () {
+                console.log(this.get('value'));
                 this.value = Boolean(this.get('value'));
                 this.trigger(Events.FIELD_CHANGE, this);
             }
@@ -15,8 +16,13 @@ define(['underscore', 'core'], function (_, CherryForms) {
     Widgets.CheckBox = Widget.extend({
         template: _.template(
             '<label class="checkbox">' +
-            '<input type="checkbox" value="true"{% if (value) { %} checked{% } %}> {{ label }}</label>'),
+            '<input type="checkbox" id="{{ input_id }}" value="true"' +
+                '{% if (value) { %} checked{% } %}> {{ label }}</label>'),
         FieldModel: CheckBoxField,
-        className: 'chf-field-checkbox'
+        className: 'chf-field-checkbox',
+
+        _onChange: function () {
+            this.setValue(this.getInput().prop('checked'));
+        }
     });
 });
