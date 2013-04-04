@@ -233,7 +233,6 @@ def get_widget_handlers(templates_path=(), static_path=(), no_static=False, **kw
         sub = subclasses_queue.pop(0)
         if sub in _seen:
             continue
-        print sub
         subclasses_queue += list(sub.__subclasses__())
         for spec in sub.handlers.itervalues():
             specs.append(spec)
