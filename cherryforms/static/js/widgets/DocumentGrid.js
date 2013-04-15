@@ -13,8 +13,8 @@ define(['underscore', 'backbone', 'handsontable', 'core',
         Field = Fields.Field,
 
         Events = CherryForms.Events,
-        bullocks = function() {
-            console.debug('bullocks', arguments);
+        bullocks = function () {
+            // console.debug('bullocks', arguments);
             return false;
         },
 
@@ -33,9 +33,13 @@ define(['underscore', 'backbone', 'handsontable', 'core',
         DocumentGridField = Fields.DocumentGrid = Field.extend({
             defaults: function () {
                 return _.extend({}, Field.prototype.defaults.call(this), {
+                    'crud_url': '',
                     'grid_class': 'chf-grid',
                     'controls_class': 'chf-controls',
-                    'button_cell': 'chf-button-cell'
+                    'button_cell': 'chf-cell-button',
+                    'copy_button': 'chf-copy-button',
+                    'del_button': 'chf-trash-button',
+                    'copy_dialog': 'chf-copy-dialog'
                 });
             },
 
@@ -54,7 +58,7 @@ define(['underscore', 'backbone', 'handsontable', 'core',
 
             gridColumns: function () {
                 return _.map(this.get('fields'), function (field) {
-                    return  {
+                    return {
                         data: field
                     };
                 });
@@ -72,15 +76,25 @@ define(['underscore', 'backbone', 'handsontable', 'core',
             className: 'chf-field-document-grid',
             FieldModel: DocumentGridField,
             template: _.template('<div class="control-group">' +
-                '<label>{{ label }}</label>' +
-                '<div class="{{ grid_class }}"></div>' +
-            '</div>'),
+                    '<label>{{ label }}</label>' +
+                    '<div class="{{ grid_class }}"></div>' +
+                '</div>'),
             idTemplate: _.template('<a href="{{ document_id }}">{{ document_id }}</a>'),
+            documentCopyDialogTemplate: _.template('<div class="{{ copy_dialog }} modal hide fade">' +
+                    '<div class="modal-header">Copy document</div>' +
+                    '<div class="modal-body">' +
+                        '<label>Save document with new id:</label>' +
+                        '<input type="text" value="{{ document_id }}-copy">' +
+                    '</div>' +
+                    '<div class="modal-footer">' +
+                        '<a href="#" class="btn">Cancel</a>' +
+                        '<a href="#" class="btn btn-primary">Copy</a>' +
+                    '</div>' +
+                '</div>'),
 
             initialize: function () {
                 Widget.prototype.initialize.apply(this, arguments);
-                _.bindAll(this, '_documentIDRenderer', '_controlsRenderer',
-                                '_onCopyClick', '_onTrashClick');
+                _.bindAll(this, '_documentIDRenderer', '_controlsRenderer', '_controlsClickHandler');
             },
 
             _getDocumentAtRow: function (row) {
@@ -99,16 +113,18 @@ define(['underscore', 'backbone', 'handsontable', 'core',
             _documentIDEditor: function (instance, td, row, col, prop, keyboardProxy, cellProperties) {
                 keyboardProxy.on("keydown.editor", function (event) {
                     switch (event.keyCode) {
-                        case 13:
-                            event.stopImmediatePropagation();
-                            window.location.assign($(keyboardProxy).val());
-                            break;
+                    case 13:
+                        event.stopImmediatePropagation();
+                        window.location.assign($(keyboardProxy).val());
+                        break;
                     }
                 });
             },
 
             _controlsRenderer: function (instance, td, row, col, prop, value, cellProperties) {
-                var $controls = $(this._controlsTemplate({document_id: value})).click(this._onCopyClick);
+                var $controls = $(this._controlsTemplate(
+                    _.extend({document_id: value}, this.model.toJSON())
+                )).click(this._controlsClickHandler);
                 $(td).html($controls).addClass(this.model.get('controls_class'));
             },
 
@@ -140,9 +156,9 @@ define(['underscore', 'backbone', 'handsontable', 'core',
                 return this;
             },
 
-            copyButtonTemplate: '<a href="#" rel="{{ document_id }}" class="">' +
+            copyButtonTemplate: '<a href="#" rel="{{ document_id }}" class="{{ copy_button }}">' +
                 '<i class="icon-copy"></i></a>',
-            trashButtonTemplate: '<a href="#" rel="{{ document_id }}" class="">' +
+            trashButtonTemplate: '<a href="#" rel="{{ document_id }}" class="{{ del_button }}">' +
                 '<i class="icon-trash"></i></a>',
             controlsTemplate: '<div class="">{{ controls }}</div>',
 
@@ -177,12 +193,22 @@ define(['underscore', 'backbone', 'handsontable', 'core',
                 return this;
             },
 
-            _onCopyClick: function () {
-                console.debug('DocumentGridField._onCopyClick');
-            },
-
-            _onTrashClick: function () {
-                console.debug('DocumentGridField._onTrashClick');
+            _controlsClickHandler: function (event) {
+                var $button = $(event.target).parent('a'),
+                    documentID = $button.prop('rel'),
+                    crudURL = this.model.get('crud_url'),
+                    $modal;
+                if (crudURL) {
+                    if ($button.hasClass(this.model.get('copy_button'))) {
+                        $modal = $(this.documentCopyDialogTemplate(
+                            _.extend({document_id: documentID}, this.model.toJSON())
+                        )).appendTo(this.el).modal();
+                        console.log('Copying document', documentID, $modal);
+                    } else {
+                        console.log('Removing document', documentID);
+                    }
+                }
+                return false;
             }
         });
 });
