@@ -277,7 +277,7 @@ define(['underscore', 'backbone', 'handsontable', 'core', 'utils', 'widgets/Iden
                 documentCopy.set('_id', copyDocumentID);
                 documentsCollection.add(documentCopy);
                 documentCopy.save();
-                copyDocumentDialog.modal('hide');
+                copyDocumentDialog.$el.modal('hide');
                 this.refreshGrid();
             },
 
