@@ -1,4 +1,5 @@
-define(['underscore', 'backbone', 'core', 'utils', 'widgets/text', 'widgets/select'],
+define(['underscore', 'backbone', 'core', 'utils',
+    'widgets/Identifier', 'widgets/TextArea', 'widgets/Select'],
     function (_, Backbone, CherryForms, Utils) {
     "use strict";
     var Models = CherryForms.Models,
@@ -16,12 +17,12 @@ define(['underscore', 'backbone', 'core', 'utils', 'widgets/text', 'widgets/sele
         Unset = Utils.Unset,
 
         Translation = Models.Document.extend({
-            url: '/widgets/translations/'
+            url: '/chf-handlers/translations/'
         }),
 
         TranslationsCollection = Models.DocumentsCollection.extend({
             model: Translation,
-            url: '/widgets/translations/'
+            url: '/chf-handlers/translations/'
         }),
         translationsCollection = new TranslationsCollection(),
 
@@ -84,7 +85,7 @@ define(['underscore', 'backbone', 'core', 'utils', 'widgets/text', 'widgets/sele
                 }, _.pick(this.toJSON(), 'create_button')));
             Field.prototype.initialize.apply(this, arguments);
             if (!this.has('languages')) {
-                $.get('/widgets/languages', this._onLanguagesLoaded);
+                $.get('/chf-handlers/languages', this._onLanguagesLoaded);
             } else {
                 this.setLanguage();
             }
