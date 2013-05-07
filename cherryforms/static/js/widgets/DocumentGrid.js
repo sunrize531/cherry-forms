@@ -166,6 +166,9 @@ define(['underscore', 'backbone', 'handsontable', 'core', 'utils', 'widgets/Iden
 
             linkRenderer: function (instance, td, row, col, prop, value, cellProperties) {
                 Handsontable.TextRenderer.apply(this, arguments);
+                if (!value) {
+                    return
+                }
                 var val = JSON.parse(value);
                 $(td).html(this.linkTemplate({link_url: val.link_url, link_text: val.link_text}));
             },
