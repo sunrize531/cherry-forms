@@ -133,10 +133,11 @@ define(['underscore', 'backbone', 'handsontable', 'core', 'utils', 'widgets/Iden
                     '<div class="{{ grid_class }}"></div>' +
                 '</div>'),
             idTemplate: _.template('<a href="{{ document_id }}">{{ document_id }}</a>'),
+            linkTemplate: _.template('<a href="{{ link_url }}">{{ link_text }}</a>'),
 
             initialize: function () {
                 Widget.prototype.initialize.apply(this, arguments);
-                _.bindAll(this, 'documentIDRenderer', 'controlsRenderer', 'controlsClickHandler');
+                _.bindAll(this, 'documentIDRenderer', 'controlsRenderer', 'controlsClickHandler', 'linkRenderer');
             },
 
             documentIDRenderer: function (instance, td, row, col, prop, value, cellProperties) {
@@ -163,6 +164,12 @@ define(['underscore', 'backbone', 'handsontable', 'core', 'utils', 'widgets/Iden
                 $(td).html($controls).addClass(this.model.get('controls_class'));
             },
 
+            linkRenderer: function (instance, td, row, col, prop, value, cellProperties) {
+                Handsontable.TextRenderer.apply(this, arguments);
+                var val = JSON.parse(value);
+                $(td).html(this.linkTemplate({link_url: val.link_url, link_text: val.link_text}));
+            },
+
             gridHeaders: function (controlsEnabled) {
                 var headers = ['ID'];
                 if (controlsEnabled) {
@@ -179,9 +186,16 @@ define(['underscore', 'backbone', 'handsontable', 'core', 'utils', 'widgets/Iden
 
                 if (controlsEnabled) {
                     columns.push({data: '_control', type: {renderer: this.controlsRenderer, editor: bullocks}});
-                }
+                };
+                var linkFields = this.model.get('link_fields');
+                var linkRenderer = this.linkRenderer;
                 return columns.concat(_.map(this.model.get('fields'), function (field) {
-                    return {data: field};
+                    if (_.contains(linkFields, field)) {
+                        return {data: field, type: {renderer: linkRenderer}};
+                    }
+                    else {
+                        return {data: field};
+                    };
                 }));
             },
 
