@@ -139,6 +139,10 @@ class TextField(Field):
     widget = 'Text'
 
 
+class IdentifierField(Field):
+    widget = 'Identifier'
+
+
 class NumberField(TextField):
     widget = 'Number'
 

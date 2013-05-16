@@ -319,9 +319,8 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
                     this.model = new this.FieldModel(this.options);
                 }
 
-                this.model
-                    .on('error', this._onError, this)
-                    .on('change:value', this._onValidate, this);
+                this.listenTo(this.model, 'invalid', this._onError);
+                this.listenTo(this.model, 'change:value', this._onValidate);
             },
 
             _onError: function () {
@@ -374,7 +373,7 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
             },
 
             setValue: function(value) {
-                this.model.set('value', value);
+                this.model.set('value', value, {validate: true});
             },
 
             render: function () {

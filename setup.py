@@ -12,7 +12,7 @@ def get_file_list(path):
 setup(
     name='cherry-forms',
     version='0.6.1',
-    packages=['cherryforms',],
+    packages=['cherryforms', ],
     package_data={'cherryforms': get_file_list('templates') + get_file_list('static')},
     url='',
     license='MIT',
