@@ -36,9 +36,7 @@ define(['underscore', 'backbone', 'core'], function(_, Backbone, CherryForms) {
         validate: function (attributes, options) {
             var value = attributes['value'];
             if (!_.isUndefined(this.pattern) && value) {
-                if (!this.pattern.test(value)) {
-                    return 'Invalid value: ' + value;
-                }
+                return !this.pattern.test(value);
             }
             return false;
         },
