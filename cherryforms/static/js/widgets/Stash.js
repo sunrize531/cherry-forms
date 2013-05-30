@@ -146,7 +146,7 @@ define(['underscore', 'backbone', 'core', 'utils',
                     '<div class="control-label">{{ label }}</div>' +
                     '<div class="controls">' +
                         '<div class="input-append input-large">' +
-                            '<input type="text" id="{{ input_id }}" value="{{ value }}" class="input-mini">' +
+                            '<input type="text" id="{{ input_id }}" value="{{ value }}" class="input-medium">' +
                             '<a class="btn {{ add_button }}"><i class="icon-plus"></i></a>' +
                             '<a class="btn {{ clear_button }}"><i class="icon-trash"></i></a>' +
                         '</div>' +
