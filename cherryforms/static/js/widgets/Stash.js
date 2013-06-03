@@ -1,5 +1,5 @@
 define(['underscore', 'backbone', 'core', 'utils',
-    'widgets/Text',
+    'widgets/Text', 'widgets/Identifier',
     'less!chf-stash.less'], function (_, Backbone, CherryForms, Utils) {
     "use strict";
     var Models = CherryForms.Models,
@@ -143,11 +143,12 @@ define(['underscore', 'backbone', 'core', 'utils',
             className: 'chf-field-item',
             template: _.template(
                 '<div class="control-group">' +
-                    '<div class="control-label">{{ label }}</div>' +
+                    '<label class="control-label" for="{{ input_id }}">{{ label }}</label>' +
                     '<div class="controls">' +
-                        '<div class="input-append input-large">' +
+                        '<div class="input-append">' +
                             '<input type="text" id="{{ input_id }}" value="{{ value }}" class="input-small">' +
                             '<a class="btn {{ add_button }}"><i class="icon-plus"></i></a>' +
+                            '<a class="btn {{ subtract_button }}"><i class="icon-minus"></i></a>' +
                             '<a class="btn {{ clear_button }}"><i class="icon-trash"></i></a>' +
                         '</div>' +
                     '</div>' +
@@ -158,6 +159,7 @@ define(['underscore', 'backbone', 'core', 'utils',
                 var events = TextWidget.prototype.events.call(this);
                 events['click .' + this.model.get('clear_button')] = 'clearValue';
                 events['click .' + this.model.get('add_button')] = 'addValue';
+                events['click .' + this.model.get('subtract_button')] = 'subtractValue';
                 return events;
             },
 
@@ -170,6 +172,18 @@ define(['underscore', 'backbone', 'core', 'utils',
                 var num = Number(this.model.value);
                 if (_.isNumber(num)) {
                     this.model.set('value', num + 1);
+                }
+            },
+
+            subtractValue: function () {
+                var num = Number(this.model.value);
+                if (_.isNumber(num)) {
+                    num -= 1;
+                    if (num) {
+                        this.model.set('value', num);
+                    } else {
+                        this.clearValue();
+                    }
                 }
             }
         }),
@@ -207,6 +221,7 @@ define(['underscore', 'backbone', 'core', 'utils',
                     'item_class': 'chf-field-item',
                     'clear_button': 'chf-btn-clear',
                     'add_button': 'chf-btn-add',
+                    'subtract_button': 'chf-btn-subtract',
                     'resources_url': '/widgets/resources'
                 }));
             },
@@ -216,7 +231,7 @@ define(['underscore', 'backbone', 'core', 'utils',
                 this.schema
                     .on(Events.FIELD_CHANGE, this._onFieldChange, this)
                     .on(Events.FIELD_CLEAR, this._onFieldClear, this);
-                this.createItemField = new Fields.Identifier(_.pick(this.toJSON(), 'add_button'));
+                this.createItemField = new Fields.Identifier(_.pick(this.toJSON(), 'add_button', 'subtract_button'));
                 Field.prototype.initialize.apply(this, arguments);
 
                 // Init resources collection
@@ -255,7 +270,7 @@ define(['underscore', 'backbone', 'core', 'utils',
                 return new StashItemField(_.extend({
                     field: res,
                     value: value
-                }, _.pick(this.toJSON(), 'add_button', 'clear_button')));
+                }, _.pick(this.toJSON(), 'add_button', 'subtract_button', 'clear_button')));
             },
 
             _onFieldChange: function (field) {
