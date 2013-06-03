@@ -266,6 +266,14 @@ define(['underscore', 'backbone', 'core', 'utils',
                 }
             },
 
+            dumpValue: function () {
+                return JSON.stringify(this.plainValue());
+            },
+
+            plainValue: function () {
+                return this.value.toJSON();
+            },
+
             _createItemField: function (res, value) {
                 return new StashItemField(_.extend({
                     field: res,
