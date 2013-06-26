@@ -9,6 +9,9 @@ define(['underscore', 'backbone', 'core', 'widgets/Text'], function(_, Backbone,
         NumberField = Fields.Number = Field.extend({
             processValue: function () {
                 this.value = Number(this.get('value'));
+                if (_.isNaN(this.value)) {
+                    this.value = 0;
+                }
                 this.trigger(Events.FIELD_CHANGE, this);
             },
 
