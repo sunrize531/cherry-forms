@@ -8,23 +8,15 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
         Events = CherryForms.Events,
 
         Field = Fields.Field,
-        TextField = Fields.Text,
         TextWidget = Widgets.Text,
 
-        MILLISECOND = 1,
-        SECOND = MILLISECOND * 1000,
-        MINUTE = SECOND * 60,
-        HOUR = MINUTE * 60,
-        DAY = HOUR * 24,
-        WEEK = DAY * 7,
-
-        DATE_FORMAT = 'yyyy-mm-dd';
+        DATE_FORMAT = 'YYYY-MM-DD';
 
     Fields.Date = Field.extend({
         processValue: function () {
             var value = Number(this.get('value')),
                 m = this.moment = moment(value);
-            this.value = m.format('YYYY-MM-DD');
+            this.value = m.format(DATE_FORMAT);
             this.trigger(Events.FIELD_CHANGE, this);
             return undefined;
         },
@@ -45,8 +37,8 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
             TextWidget.prototype.render.call(this);
             _.bindAll(this, '_onDatePicked');
             this.getInput()
-                .datepicker({format: 'yyyy-mm-dd'})
-                .on('changeDate', this._onDatePicked);
+                .datetimepicker({format: DATE_FORMAT, pickTime: false})
+                .on('change.dp', this._onDatePicked);
         },
 
         _onDatePicked: function (event) {

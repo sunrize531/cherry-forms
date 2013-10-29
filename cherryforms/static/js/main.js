@@ -8,7 +8,7 @@
                 'underscore': 'libs/underscore-min',
                 'backbone': 'libs/backbone-min',
                 'handsontable': 'libs/jquery.handsontable',
-                'datepicker': 'libs/bootstrap-datepicker',
+                'datepicker': 'libs/bootstrap-datetimepicker.min',
                 'moment': 'libs/moment.min',
                 'highcharts': 'libs/highcharts',
                 'highcharts-exporting': 'libs/highcharts-exporting',
@@ -37,14 +37,14 @@
                     exports: 'less'
                 },
                 'datepicker': {
-                    deps: ['jquery', 'bootstrap']
+                    deps: ['moment', 'jquery', 'bootstrap', 'css!bootstrap-datetimepicker.min.css'],
+                    init: function (moment) {
+                        window.moment = moment;
+                    }
                 },
                 'handsontable': {
                     deps: ['jquery'],
                     exports: 'Handsontable'
-                },
-                'moment': {
-                    exports: 'moment'
                 },
                 'highcharts': {
                     exports: 'Highcharts'

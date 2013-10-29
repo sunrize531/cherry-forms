@@ -155,6 +155,10 @@ class DateField(Field):
     widget = 'Date'
 
 
+class TimeField(Field):
+    widget = 'Time'
+
+
 class FileField(Field):
     widget = 'File'
     field_class = 'chf-field-file'
