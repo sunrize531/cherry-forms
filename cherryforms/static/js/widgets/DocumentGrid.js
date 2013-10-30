@@ -14,10 +14,6 @@ define(['underscore', 'backbone', 'core', 'utils', 'widgets/Identifier', 'handso
         Field = Fields.Field,
 
         Events = CherryForms.Events,
-        bullocks = function () {
-            // console.debug('bullocks', arguments);
-            return false;
-        },
 
         Row = Document.extend({
             toJSON: function () {
@@ -145,17 +141,6 @@ define(['underscore', 'backbone', 'core', 'utils', 'widgets/Identifier', 'handso
                 $(td).html(this.idTemplate({document_id: value}));
             },
 
-            documentIDEditor: function (instance, td, row, col, prop, keyboardProxy, cellProperties) {
-                keyboardProxy.on("keydown.editor", function (event) {
-                    switch (event.keyCode) {
-                    case 13:
-                        event.stopImmediatePropagation();
-                        window.location.assign($(keyboardProxy).val());
-                        break;
-                    }
-                });
-            },
-
             controlsRenderer: function (instance, td, row, col, prop, value, cellProperties) {
                 var $controls = $(this._controlsTemplate(
                     _.extend({document_id: value}, this.model.toJSON())
@@ -183,11 +168,11 @@ define(['underscore', 'backbone', 'core', 'utils', 'widgets/Identifier', 'handso
             gridColumns: function (controlsEnabled) {
                 var columns = [{data: '_id', type: {
                     renderer: this.documentIDRenderer,
-                    editor: this.documentIDEditor
+                    readOnly: true
                 }}];
 
                 if (controlsEnabled) {
-                    columns.push({data: '_control', type: {renderer: this.controlsRenderer, editor: bullocks}});
+                    columns.push({data: '_control', type: {renderer: this.controlsRenderer, readOnly: true}});
                 }
                 var linkFields = this.model.get('link_fields');
                 var linkRenderer = this.linkRenderer;
@@ -265,6 +250,7 @@ define(['underscore', 'backbone', 'core', 'utils', 'widgets/Identifier', 'handso
             },
 
             controlsClickHandler: function (event) {
+                console.log(event);
                 var $button = $(event.target).parent('a'),
                     documentID = $button.prop('rel'),
                     crudURL = this.model.get('crud_url'),
