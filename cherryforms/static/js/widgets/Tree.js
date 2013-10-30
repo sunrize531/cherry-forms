@@ -221,6 +221,7 @@ define(['underscore', 'backbone', 'core', 'utils',
             },
 
             initialize: function (options) {
+                this.options = options;
                 _.defaults(this.options, nodeDefaults);
                 this.listenTo(this.model, 'change:selected', this._onSelectedStateChange);
                 this.listenTo(this.model, 'change:expanded', this._onExpandedStateChange);

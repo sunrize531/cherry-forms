@@ -165,6 +165,10 @@ define(['underscore', 'backbone', 'core', 'widgets/Text', 'widgets/Select',
             '{% if (!read_only) { %}&nbsp;<a href="#" class="red {{ trash_icon }}">' +
                 '<i class="icon-trash"></i></a>{% } %}'),
 
+        initialize: function (options) {
+            this.options = options;
+        },
+
         events: function () {
             var events = {},
                 url_template = this.options['url_template'],

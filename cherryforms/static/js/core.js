@@ -310,6 +310,7 @@ define(['jquery', 'underscore', 'backbone', 'utils', 'bootstrap'], function ($, 
             },
 
             initialize: function (options) {
+                this.options = options;
                 var template = options['template'];
                 if (!_.isUndefined(template)) {
                     this.template = template;

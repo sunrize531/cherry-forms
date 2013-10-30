@@ -192,7 +192,7 @@ define(['underscore', 'backbone', 'core', 'utils'], function (_, Backbone, Cherr
             template: Templates.Select,
             optionsTemplate: Templates.Option,
 
-            initialize: function () {
+            initialize: function (options) {
                 Widget.prototype.initialize.apply(this, arguments);
                 var choices = this.choices = this.model.choices;
                 this.listenTo(choices, 'add', this.renderOption);

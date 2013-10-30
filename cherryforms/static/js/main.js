@@ -7,7 +7,7 @@
                 'bootstrap': 'libs/bootstrap.min',
                 'underscore': 'libs/underscore-min',
                 'backbone': 'libs/backbone-min',
-                'handsontable': 'libs/jquery.handsontable',
+                'handsontable': 'libs/jquery.handsontable.full',
                 'datepicker': 'libs/bootstrap-datetimepicker.min',
                 'moment': 'libs/moment.min',
                 'highcharts': 'libs/highcharts',
@@ -43,7 +43,7 @@
                     }
                 },
                 'handsontable': {
-                    deps: ['jquery', 'css!jquery.handsontable.css'],
+                    deps: ['jquery', 'css!jquery.handsontable.full.css'],
                     exports: 'Handsontable'
                 },
                 'highcharts': {

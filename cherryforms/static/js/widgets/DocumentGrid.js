@@ -1,6 +1,6 @@
-define(['underscore', 'backbone', 'handsontable', 'core', 'utils', 'widgets/Identifier',
+define(['underscore', 'backbone', 'core', 'utils', 'widgets/Identifier', 'handsontable',
     'less!chf-document-grid.less'],
-    function (_, Backbone, Handsontable, CherryForms, Utils) {
+    function (_, Backbone, CherryForms, Utils) {
     "use strict";
 
     var Widgets = CherryForms.Widgets,
@@ -146,7 +146,6 @@ define(['underscore', 'backbone', 'handsontable', 'core', 'utils', 'widgets/Iden
             },
 
             documentIDEditor: function (instance, td, row, col, prop, keyboardProxy, cellProperties) {
-                console.log(arguments);
                 keyboardProxy.on("keydown.editor", function (event) {
                     switch (event.keyCode) {
                     case 13:
@@ -189,7 +188,7 @@ define(['underscore', 'backbone', 'handsontable', 'core', 'utils', 'widgets/Iden
 
                 if (controlsEnabled) {
                     columns.push({data: '_control', type: {renderer: this.controlsRenderer, editor: bullocks}});
-                };
+                }
                 var linkFields = this.model.get('link_fields');
                 var linkRenderer = this.linkRenderer;
                 return columns.concat(_.map(this.model.get('fields'), function (field) {
@@ -198,7 +197,7 @@ define(['underscore', 'backbone', 'handsontable', 'core', 'utils', 'widgets/Iden
                     }
                     else {
                         return {data: field};
-                    };
+                    }
                 }));
             },
 

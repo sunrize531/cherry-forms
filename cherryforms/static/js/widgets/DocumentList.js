@@ -168,8 +168,9 @@ define(['underscore', 'backbone', 'core',
                 var schema = this.schema.toJSON(),
                     documents = value,
                     collection = this.value = new DocumentList(),
-                    fields = this.fields.reset([], {silent: true});
+                    fields = this.fields;
 
+                fields.reset([], {silent: true});
                 if (value instanceof Backbone.Collection) {
                     documents = documents.toJSON();
                 }

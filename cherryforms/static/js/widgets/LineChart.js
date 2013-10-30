@@ -68,19 +68,6 @@ define(['underscore', 'core', 'highcharts', 'highcharts-exporting',
                     this.getChartOptions(),
                     this.getChartData());
                 this.$getChart().highcharts(chartOptions);
-
-                /*
-                var chart = this.chart,
-                    $chart = this.$getChart();
-
-                if (!_.isUndefined(chart)) {
-                    chart.destroy();
-                    $chart.empty();
-                }
-
-                this.chart = new Highcharts.Chart(
-                    _.extend(this.getChartOptions($chart[0]), this.options, this.getChartData()));
-                */
             }
         });
     return CherryForms;
