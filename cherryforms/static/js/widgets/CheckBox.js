@@ -7,7 +7,6 @@ define(['underscore', 'core'], function (_, CherryForms) {
 
         CheckBoxField = Fields.CheckBox = Fields.Field.extend({
             processValue: function () {
-                console.log(this.get('value'));
                 this.value = Boolean(this.get('value'));
                 this.trigger(Events.FIELD_CHANGE, this);
             }

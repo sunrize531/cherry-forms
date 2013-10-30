@@ -1,6 +1,5 @@
 define(['underscore', 'backbone', 'core', 'utils', 'moment',
-    'widgets/Text', 'datepicker',
-    'css!datepicker.css'], function(_, Backbone, CherryForms, Utils, moment) {
+    'widgets/Text', 'datepicker'], function(_, Backbone, CherryForms, Utils, moment) {
     "use strict";
     var Widgets = CherryForms.Widgets,
         Widget = Widgets.Widget,
@@ -26,7 +25,6 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
             var value = this.get('value'),
                 ms = Number(value),
                 m;
-            console.log(value, ms);
             if (ms instanceof Number) {
                 m = moment(ms);
             } else if (_.isString(value)) {

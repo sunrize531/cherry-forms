@@ -1,6 +1,5 @@
 define(['underscore', 'backbone', 'core', 'utils', 'moment',
-    'widgets/Text', 'datepicker',
-    'css!datepicker.css'], function(_, Backbone, CherryForms, Utils, moment) {
+    'widgets/Text', 'datepicker'], function(_, Backbone, CherryForms, Utils, moment) {
     "use strict";
     var Widgets = CherryForms.Widgets,
         Widget = Widgets.Widget,

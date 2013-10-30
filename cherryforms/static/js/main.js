@@ -2,7 +2,7 @@
     "use strict";
     var defaultConfig = {
             paths: {
-                'jquery': 'libs/jquery-1.8.3.min',
+                'jquery': 'libs/jquery-1.10.2.min',
                 'lessjs': 'libs/less-1.3.1.min',
                 'bootstrap': 'libs/bootstrap.min',
                 'underscore': 'libs/underscore-min',
@@ -43,7 +43,7 @@
                     }
                 },
                 'handsontable': {
-                    deps: ['jquery'],
+                    deps: ['jquery', 'css!jquery.handsontable.css'],
                     exports: 'Handsontable'
                 },
                 'highcharts': {

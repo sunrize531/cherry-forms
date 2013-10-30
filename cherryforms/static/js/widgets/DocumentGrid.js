@@ -1,5 +1,5 @@
 define(['underscore', 'backbone', 'handsontable', 'core', 'utils', 'widgets/Identifier',
-    'less!chf-document-grid.less', 'css!jquery.handsontable.css'],
+    'less!chf-document-grid.less'],
     function (_, Backbone, Handsontable, CherryForms, Utils) {
     "use strict";
 

@@ -12,6 +12,7 @@ define(['underscore', 'core', 'highcharts', 'highcharts-exporting',
             FieldModel: PieChartField,
 
             renderChart: function () {
+                /*
                 var chart = this.chart,
                     $chart = this.$getChart(),
                     data = this.model.get('data'),
@@ -36,6 +37,7 @@ define(['underscore', 'core', 'highcharts', 'highcharts-exporting',
                 } catch (e) {
                     console.error('Pie glitch', e, chartOptions);
                 }
+                */
             }
         });
     return CherryForms;

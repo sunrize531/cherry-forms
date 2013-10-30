@@ -47,11 +47,9 @@ define(['underscore', 'core', 'highcharts', 'highcharts-exporting',
                 return chartData;
             },
 
-            getChartOptions: function (container) {
+            getChartOptions: function () {
                 return {
-                    chart: {
-                        renderTo: container
-                    },
+                    chart: {},
                     title: false,
                     subtitle: false,
                     tooltip: {
@@ -66,6 +64,12 @@ define(['underscore', 'core', 'highcharts', 'highcharts-exporting',
             },
 
             renderChart: function () {
+                var chartOptions = _.extend(
+                    this.getChartOptions(),
+                    this.getChartData());
+                this.$getChart().highcharts(chartOptions);
+
+                /*
                 var chart = this.chart,
                     $chart = this.$getChart();
 
@@ -76,6 +80,7 @@ define(['underscore', 'core', 'highcharts', 'highcharts-exporting',
 
                 this.chart = new Highcharts.Chart(
                     _.extend(this.getChartOptions($chart[0]), this.options, this.getChartData()));
+                */
             }
         });
     return CherryForms;
