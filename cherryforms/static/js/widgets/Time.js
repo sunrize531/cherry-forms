@@ -25,7 +25,7 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
             var value = this.get('value'),
                 ms = Number(value),
                 m;
-            if (ms instanceof Number) {
+            if (!_.isNaN(ms)) {
                 m = moment(ms);
             } else if (_.isString(value)) {
                 m = moment(value, DATE_FORMAT);
