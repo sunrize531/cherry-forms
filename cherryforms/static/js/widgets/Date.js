@@ -42,6 +42,7 @@ define(['underscore', 'backbone', 'core', 'utils', 'moment',
 
         _onDatePicked: function (event) {
             this.setValue(moment(event.date).valueOf());
+            this.getInput().blur();
         },
 
         _onValidate: function () {
