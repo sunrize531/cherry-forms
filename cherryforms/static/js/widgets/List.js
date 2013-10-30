@@ -134,7 +134,6 @@ define(['underscore', 'backbone', 'core', 'widgets/Text', 'widgets/Select',
             if (this.get('unique') && this.choices) {
                 this._hideOption(item);
             }
-            console.debug('Item added');
             this.trigger(Events.FIELD_CHANGE, this);
         },
 
@@ -293,7 +292,6 @@ define(['underscore', 'backbone', 'core', 'widgets/Text', 'widgets/Select',
         addItem: function () {
             this.model.value.add(this.newItemField.model.dumpValue());
             this.trigger(Events.FIELD_CHANGE, this);
-            console.debug(this.model.value);
             return false;
             // TODO: Remove option from selector, if any...
         }

@@ -3,13 +3,9 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, os
 from cherrycommon.mathutils import random_id
 from cherryforms.handlers import FormHandler
+from cherryforms import widgets, extra
 from cherrycommon.pathutils import norm_path
 from cherrycommon.timeutils import milliseconds
-
-import widgets
-from widgets import get_widget_handlers
-
-__author__ = 'sunrize'
 
 
 class TestHandler(FormHandler):
@@ -29,7 +25,7 @@ class TestHandler(FormHandler):
 
 
 if __name__ == '__main__':
-    handlers = get_widget_handlers(
+    handlers = widgets.get_widget_handlers(
         templates_path=[norm_path('templates')],
         static_path=[norm_path('static')])
     handlers += ('^/test', TestHandler),
@@ -39,7 +35,7 @@ if __name__ == '__main__':
     app = Application(
         handlers,
         template_path=norm_path(os.curdir, 'templates'),
-        ui_modules=widgets,
+        ui_modules=extra,
         cherryforms={
             'widget_handlers': False,
             'static_handlers': False,

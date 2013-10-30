@@ -135,7 +135,18 @@ define(['underscore', 'backbone', 'core', 'utils',
 
         STASH_VALUE_PATTERN = /^\d+(:\d+)?([%!#*]\d+)?$/,
         StashItemField = TextField.extend({
-            pattern: /^\d+(:\d+)?([%!#*]\d+)?$/
+            pattern: /^\d+(:\d+)?([%!#*]\d+)?$/,
+
+            processValue: function () {
+                var value = this.get('value'),
+                    num = Number(value);
+                if (!_.isNaN(num)) {
+                    this.value = num;
+                } else {
+                    this.value = value;
+                }
+                this.trigger(Events.FIELD_CHANGE, this);
+            }
         }),
 
         StashItemWidget = TextWidget.extend({
@@ -163,6 +174,10 @@ define(['underscore', 'backbone', 'core', 'utils',
                 return events;
             },
 
+            dumpValue: function () {
+                return this.value;
+            },
+
             clearValue: function () {
                 this.model.unsetValue();
                 this.$el.detach();
@@ -170,14 +185,14 @@ define(['underscore', 'backbone', 'core', 'utils',
 
             addValue: function () {
                 var num = Number(this.model.value);
-                if (_.isNumber(num)) {
+                if (!_.isNaN(num)) {
                     this.model.set('value', num + 1);
                 }
             },
 
             subtractValue: function () {
                 var num = Number(this.model.value);
-                if (_.isNumber(num)) {
+                if (!_.isNaN(num)) {
                     num -= 1;
                     if (num) {
                         this.model.set('value', num);
@@ -250,7 +265,7 @@ define(['underscore', 'backbone', 'core', 'utils',
                     this.unsetValue();
                 } else {
                     this.value = new Stash(value);
-                    this.value.on('change', this._onStashChange, this);
+                    this.listenTo(this.value, 'change add remove', this._onStashChange);
                     this.schema.reset(this.value.map(function (value, res) {
                         return this._createItemField(res, value);
                     }, this));
@@ -304,6 +319,7 @@ define(['underscore', 'backbone', 'core', 'utils',
                         schema.add(this._createItemField(res, value));
                     }
                 }, this);
+                this.trigger(Events.FIELD_CHANGE, this);
             }
         });
 
