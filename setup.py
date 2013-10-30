@@ -11,7 +11,7 @@ def get_file_list(path):
 
 setup(
     name='cherry-forms',
-    version='0.6.2',
+    version='0.7',
     packages=['cherryforms', ],
     package_data={'cherryforms': get_file_list('templates') + get_file_list('static')},
     url='',
