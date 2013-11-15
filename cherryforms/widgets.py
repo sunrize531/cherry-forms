@@ -218,6 +218,11 @@ class TreeField(Field):
     field_class = 'chf-field-tree'
 
 
+class AsyncTreeField(Field):
+    widget = 'AsyncTree'
+    field_class = 'chf-field-tree'
+
+
 class LineChart(Field):
     widget = 'LineChart'
     field_class = 'chf-field-chart'
