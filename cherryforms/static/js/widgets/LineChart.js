@@ -22,6 +22,7 @@ define(['underscore', 'core', 'highcharts', 'highcharts-exporting',
                     xAxis: {
                         title: titles[0],
                         categories: categories,
+                        tickmarkPlacement: 'on',
                         labels: {
                             rotation: -45,
                             align: 'right'
